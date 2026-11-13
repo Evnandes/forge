@@ -16,7 +16,8 @@ describe("arquivos criticos do app", () => {
       "painel.html",
       "agendar.html",
       "js/db.js",
-      "js/logic.js",`r`n      "js/ui.js",
+      "js/logic.js",
+      "js/ui.js",
       "js/slots.js",
       "js/config.js",
       "firestore.rules"
@@ -25,9 +26,11 @@ describe("arquivos criticos do app", () => {
     }
   });
 
-  it("carrega logic.js antes dos fluxos de agenda", () => {
+  it("carrega logic.js e ui.js nos fluxos", () => {
     expect(read("painel.html")).toContain("js/logic.js");
+    expect(read("painel.html")).toContain("js/ui.js");
     expect(read("agendar.html")).toContain("js/logic.js");
+    expect(read("agendar.html")).toContain("js/ui.js");
   });
 
   it("usa Bootstrap nas paginas principais", () => {
