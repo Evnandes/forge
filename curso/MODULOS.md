@@ -110,29 +110,23 @@ Roteiro detalhado: `curso/roteiros/M0-mentalidade-setup.md` (micro-aulas **0.01�
 
 ## Módulo 1 — Primeiro fluxo no template
 
-### 1.1 — Por que template (não app do zero)
-- Decisão explícita: seguir Forge até publicar com segurança
-- Nicho = adaptação depois
+Roteiro detalhado: `curso/roteiros/M1-template-local.md` (micro-aulas **1.01–1.11**).
 
-### 1.2 — Entender o fluxo (sem código)
-- 3 telas; profissional vs cliente
-- **Check-in #1:** postar print do fluxo / entendimento (após concluir M1 — ver trilha)
+| Nº | Título | Tipo |
+|----|--------|------|
+| 1.01 | Reabrir o Forge no Live Server | mão na massa |
+| 1.02 | Por que seguimos o template | conceito |
+| 1.03 | As três telas do Forge | demo |
+| 1.04 | Desenhar o fluxo no papel | mão na massa |
+| 1.05 | Percorrer as três telas no navegador | mão na massa |
+| 1.06 | Aviso de Firebase ainda não configurado | demo |
+| 1.07 | Pedir o texto do nicho na home | mão na massa |
+| 1.08 | Quando a IA muda demais | quando dá errado |
+| 1.09 | Melhoria pequena de texto de ajuda | mão na massa |
+| 1.10 | README honesto (ainda local) | mão na massa |
+| 1.11 | Checkpoint + Check-in #1 | checkpoint |
 
-### 1.3 — Rodar o template local
-- Live Server
-- Conferir: abre início, login, agendar
-
-### 1.4 — Pedir a primeira melhoria
-- Feature pequena (texto, validação, empty state)
-- Conferir no navegador
-
-### 1.5 — Regras leves do projeto
-- Pedir à IA: README honesto (“ainda local / já na nuvem”)
-
-### 1.6 — Checkpoint local
-- Checklist + **Check-in #1** aqui (fim do M1)
-
-**Entrega:** template rodando local + check-in #1.
+**Entrega:** checklist 1.11 + Check-in #1 na comunidade.
 
 ---
 
