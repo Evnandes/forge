@@ -24,12 +24,14 @@
 | 5 | Segurança, LGPD e limites | Revisão sênior + honestidade | App apresentável no Spark |
 | 6 | Método, comunidade e próximo nível | Autonomia + backlog | Pitch + plano próprio |
 
-**Formato sugerido por aula:** 8–15 min · problema → demo no Cursor → checklist · prompt modelo · erro comum · recado de honestidade.
+**Formato sugerido por aula:** 8–15 min · problema → demo no Cursor · checklist · prompt modelo · erro comum · recado de honestidade.
+
+**Exceção de duração:** aulas de **setup, FAQ e guias de referência** (ex.: 0.4 e anexos) podem ser mais longas ou em formato “consultar sob demanda” — não entram na meta de 8–15 min de gravação linear. No roteiro, marque essas como `tipo: guia`.
 
 **Suporte contínuo (não só no fim):**
 - Comunidade (Discord/WhatsApp/Hotmart) **desde o Módulo 0**
 - Check-in leve após M1, M3 e M5 (postar print/URL + 3 frases)
-- Revisão por pares opcional antes do Módulo 6 (trocar checklist com outro aluno)
+- Revisão por pares **obrigatória leve** no Módulo 6 (Aula 6.4): trocar URL + rubrica com outro aluno (~15 min). Sem pares disponível na turma, o moderador/instrutor faz o papel do par (mesmo checklist).
 
 ---
 
@@ -390,7 +392,7 @@ Não é “instale e pronto”. É a rede de segurança contra evasão.
 | Check-ins #1–#3 feitos na comunidade | Obrigatório |
 | Ritual `npm test` após mudança de lógica | Desejável |
 | SECURITY / limites explicados com palavras próprias | Desejável |
-| Revisão por pares (M6) | Desejável |
+| Revisão por pares (M6.4) — obrigatória leve | Obrigatório |
 | Nicho próprio (fork) | Bônus |
 
 ---
