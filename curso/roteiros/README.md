@@ -11,7 +11,7 @@ Use o prompt em [`PROMPT-ROTEIROS.md`](./PROMPT-ROTEIROS.md) — **um módulo po
 | Módulo | Arquivo | Formato micro-aulas |
 |--------|---------|---------------------|
 | 0 | [M0-mentalidade-setup.md](./M0-mentalidade-setup.md) | **Pronto** — 0.01–0.16 |
-| 1 | [M1-template-local.md](./M1-template-local.md) | Rascunho |
+| 1 | [M1-template-local.md](./M1-template-local.md) | **Pronto** — 1.01–1.11 |
 | 2 | [M2-dados-nuvem.md](./M2-dados-nuvem.md) | Rascunho |
 | 3 | [M3-publicar.md](./M3-publicar.md) | Rascunho |
 | 4 | [M4-qualidade.md](./M4-qualidade.md) | Rascunho |
