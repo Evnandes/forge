@@ -20,7 +20,7 @@
       </label>
     </p>
     <p>
-      <label>Senha<br>
+      <label>Senha (mínimo 6 caracteres)<br>
         <input name="password" type="password" required minlength="6">
       </label>
     </p>
@@ -44,20 +44,23 @@
         erro.textContent = "";
         ok.textContent = "";
         const form = event.target;
+        const email = form.email.value;
+        const password = form.password.value;
         try {
           await dbCreateUser({
             name: form.name.value,
-            email: form.email.value,
-            password: form.password.value
+            email,
+            password
           });
           try {
-            await dbSignIn({
-              email: form.email.value,
-              password: form.password.value
-            });
+            await dbSignIn({ email, password });
             window.location.href = "painel.html";
           } catch (e2) {
-            ok.textContent = "Conta criada. Se pedir confirmação de e-mail no Supabase, confirme e depois entre.";
+            form.reset();
+            ok.innerHTML =
+              "Conta criada. Abra seu e-mail (<strong>" + email + "</strong>), " +
+              "clique no link de confirmação do Supabase e depois volte em " +
+              "<a href=\"login.html\">Entrar</a>.";
           }
         } catch (e) {
           erro.textContent = e.message;

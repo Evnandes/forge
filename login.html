@@ -8,6 +8,7 @@
 <body>
   <p><a href="index.html">Início</a></p>
   <h1>Entrar</h1>
+  <p>Se você acabou de se cadastrar, confirme o e-mail antes de entrar.</p>
   <form id="form">
     <p>
       <label>E-mail<br>
@@ -43,7 +44,12 @@
           });
           window.location.href = "painel.html";
         } catch (e) {
-          erro.textContent = e.message;
+          const msg = String(e.message || e);
+          if (/confirm|email|valid/i.test(msg)) {
+            erro.textContent = "Não foi possível entrar. Confirme o e-mail (link que o Supabase enviou) e tente de novo.";
+          } else {
+            erro.textContent = msg;
+          }
         }
       });
     })();
