@@ -86,7 +86,7 @@ service cloud.firestore {
       allow update: if isOwner(resource.data.userId)
         && isOwner(request.resource.data.userId)
         && request.resource.data.status in ['agendado', 'cancelado'];
-      allow delete: if false;
+      allow delete: if isOwner(resource.data.userId);
     }
   }
 }

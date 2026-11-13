@@ -1,425 +1,369 @@
 # Forge Builder — currículo do curso
 
-**Posicionamento:** ensinar pessoas que **não sabem programar** a criar software de qualidade com IA (Cursor), do zero ao app na nuvem, com critério de produto — não só “gerar código”.
+**Tese:** pessoa leiga **pede à IA** (Cursor); a IA faz o trabalho técnico; o aluno aprende o **mínimo** para pedir bem e **conferir no navegador**. Não é curso de terminal, Node ou Firebase CLI.
 
-**Projeto-guia:** Forge Agenda (micro-SaaS de agendamento: Auth Google, Firestore, Hosting, painel + link público).
+**Projeto-guia (fio condutor):** o aluno **clona / segue o template Forge Agenda**. O “app próprio” vem no fim: *“adapte este template ao meu nicho”*. Assim M4/M5 fazem sentido (o código do aluno tem a mesma estrutura).
 
-**Inspiração de estrutura (não cópia):** arco vibe → engenharia → maturidade de produto, adaptado à realidade BR (Hotmart, LGPD, Firebase Spark, público não-dev).
+**Promessa:** app real na nuvem, critério de produto, LGPD básica sem juridiquês, sem obrigar Blaze/cartão no Firebase.
 
-**Promessa:** ao final, o aluno tem um app real publicado, entende o que a IA fez, sabe pedir melhoria com método e sabe o que ainda é limite de plano/ferramenta.
+**Âncora:** o que o curso ensina existe no repo (`README.md`, `SECURITY.md`, rules, painel, agendar).
 
-**Âncora de verdade:** o que o currículo promete existe no repo (`README.md`, `SECURITY.md`, rules, testes). Não é currículo especulativo.
+---
+
+## Decisão estrutural (ler antes de gravar)
+
+| Decisão | Escolha |
+|---------|---------|
+| Template vs app do zero | **Template Forge** do M1 ao M5; nicho próprio no M6 |
+| Formato comercial | Preferência Hotmart: **ritmo próprio** + comunidade assíncrona; trilha 11 dias = sugestão de ritmo, não turma obrigatória |
+| Pares | Obrigatória leve; se não houver par, moderador/instrutor faz o papel |
+| Firebase | Spark (sem cartão) no caminho feliz |
+| Cursor | Avisar na **landing** que o plano free tem cota; pode ser preciso plano pago para terminar |
 
 ---
 
 ## Mapa geral
 
-| Módulo | Nome | Foco | Resultado |
-|--------|------|------|-----------|
-| 0 | Boas-vindas, setup e mentalidade | Ser o chefe da IA + ambiente que funciona | Cursor rodando + glossário em mãos |
-| 1 | Vibe Coding com propósito | Do chat ao app local | Agenda básica local |
-| 2 | Backend e dados na nuvem | Firebase, Auth, Firestore, UI | Dados reais + telas usáveis |
-| 3 | Publicação e versionamento | Hosting, GitHub, ritual de deploy | URL pública + histórico |
-| 4 | Qualidade sem ser programador | Logs, UX, primeiro teste | Fluxo confiável |
-| 5 | Segurança, LGPD e limites | Revisão sênior + honestidade | App apresentável no Spark |
-| 6 | Método, comunidade e próximo nível | Autonomia + backlog | Pitch + plano próprio |
+| Módulo | Nome | Competência do aluno | Resultado |
+|--------|------|----------------------|-----------|
+| 0 | Mentalidade e setup via IA | Pedir instalação e validar ambiente | Cursor + pasta do template |
+| 1 | Primeiro fluxo no template | Pedir features; conferir no browser | Agenda local |
+| 2 | Dados na nuvem | Pedir migração Firebase; testar login | Auth + Firestore |
+| 3 | Publicar | Pedir deploy; conferir URL no celular | Site no ar + GitHub |
+| 4 | Qualidade | Pedir organização/testes; conferir | UX + ritual de teste |
+| 5 | Segurança e LGPD | Pedir correção; conferir aba anônima | App apresentável |
+| 6 | Método e nicho | Adaptar template; pares; pitch | Autonomia |
 
-**Formato sugerido por aula:** 8–15 min · problema → demo no Cursor · checklist · prompt modelo · erro comum · recado de honestidade.
+**Formato de aula (padrão):** 8–15 min · problema → **prompt modelo** → aluno confere → erro comum → recado de honestidade.
 
-**Exceção de duração:** aulas de **setup, FAQ e guias de referência** (ex.: 0.4 e anexos) podem ser mais longas ou em formato “consultar sob demanda” — não entram na meta de 8–15 min de gravação linear. No roteiro, marque essas como `tipo: guia`.
+**Exceção:** setup/FAQ = `tipo: guia` (podem ser longos ou sob demanda).
 
-**Suporte contínuo (não só no fim):**
-- Comunidade (Discord/WhatsApp/Hotmart) **desde o Módulo 0**
-- Check-in leve após M1, M3 e M5 (postar print/URL + 3 frases)
-- Revisão por pares **obrigatória leve** no Módulo 6 (Aula 6.4): trocar URL + rubrica com outro aluno (~15 min). Sem pares disponível na turma, o moderador/instrutor faz o papel do par (mesmo checklist).
+**Padrão pedagógico “pedir + conferir”:** quase toda aula técnica termina com *o que digitar para a IA* e *o que olhar no navegador* — nunca com “agora configure o X na mão”.
 
 ---
 
-## Glossário vivo (consultar o curso inteiro)
-
-Anexo permanente (PDF/Notion/aula pinada). Cada termo em **uma frase**. Expandir quando um módulo introduzir palavra nova.
+## Glossário vivo
 
 | Termo | Em uma frase |
 |-------|----------------|
-| **HTML** | Estrutura da página (títulos, botões, formulários). |
-| **CSS / Bootstrap** | Aparência; Bootstrap é um kit pronto de visual. |
-| **JavaScript (JS)** | Comportamento: cliques, validar formulário, falar com o Firebase. |
-| **Navegador** | Onde o aluno testa o app (Chrome/Edge). |
-| **Servidor local** | Forma de abrir o projeto no PC como se fosse um site. |
-| **localStorage** | “Memória” só naquele navegador — some em outro aparelho. |
-| **Firebase** | Serviço da Google: login, banco e hospedagem sem montar servidor. |
-| **Auth** | Login (no curso: Google). |
-| **Firestore** | Banco de dados na nuvem onde ficam serviços, horários e agendamentos. |
-| **Hosting** | Coloca o site numa URL pública (`*.web.app`). |
-| **Regras (Firestore rules)** | Quem pode ler/escrever cada dado. |
-| **LGPD** | Lei de proteção de dados; no app = cuidado com nome do cliente. |
-| **Deploy** | Publicar a versão nova na internet. |
-| **Git / GitHub** | Histórico do projeto + cópia na nuvem. |
-| **Commit / push** | Salvar um “ponto na história” e enviar ao GitHub. |
-| **Prompt** | O pedido que você faz à IA. |
-| **Agente (Cursor)** | Modo em que a IA edita arquivos e roda passos sozinha (com sua aprovação). |
-| **Diff** | O que mudou no código; o chefe olha antes de aceitar. |
-| **XSS** | Risco de texto malicioso em formulário virar código na tela. |
-| **Spark / Blaze** | Planos Firebase: Spark grátis; Blaze exige cartão (Functions). |
-| **Vitest / teste** | Script que confere se uma regra (ex.: conflito de horário) continua certa. |
-| **MVP** | Menor versão que já entrega valor. |
-| **Micro-SaaS** | Produto pequeno, focado, que pode cobrar assinatura/uso. |
-
-*Regra de produção:* toda aula nova que usar termo fora da tabela **atualiza o glossário** no mesmo commit de conteúdo.
-
----
-
-## Módulo 0 — Boas-vindas, setup e mentalidade
-
-### Aula 0.1 — O que você vai construir (e o que não precisa saber)
-- Promessa do curso e demo do Forge Agenda publicado
-- “Não saber programar” ≠ “não ter critério”
-- Apresentar o **glossário vivo** (onde fica e como usar)
-- Recado: você não precisa decorar; precisa saber onde olhar
-
-### Aula 0.2 — Vibe coding vs software de qualidade
-- Gerar tela ≠ produto
-- Histórias: app que “funcionava” e quebrava com 2 usuários / dado pessoal público
-- Critério do curso: usable, deployado, cuidado básico de dado
-- Recado: protótipo honesto é etapa, não vergonha
-
-### Aula 0.3 — Você é o chefe; a IA é a equipe
-- Cinco princípios: objetivo claro, pedaços pequenos, validar no navegador, ler o diff, não aceitar “mágica”
-- Quando dizer não para a IA
-- Entrar na **comunidade** do curso (primeiro post: “olá + o que quero construir”)
-
-### Aula 0.4 — Setup robusto no Windows (aula longa / guia)
-Não é “instale e pronto”. É a rede de segurança contra evasão.
-
-**Passo a passo filmado:**
-1. Conta Google
-2. Instalar Cursor (site oficial) + abrir a primeira pasta de projeto
-3. Navegador recomendado (Chrome ou Edge)
-4. Conta Firebase (Spark, **sem cartão**) — só criar projeto; configuração profunda é no M2
-5. Conta GitHub (free)
-6. Onde criar a pasta do projeto (ex.: `C:\forge`) e por que evitar Desktop/Downloads bagunçados
-7. (Opcional agora, obrigatório no M4 testes) Node.js LTS — instalar **só quando a aula pedir**, com link fixo da versão
-
-**FAQ / troubleshooting (anexo da 0.4 — pode ser aula 0.4b ou PDF):**
-- Cursor não abre / tela branca → reinstalar, desativar antivírus temporário, rodar como usuário normal
-- “Não aparece Agent” → plano/login Cursor, reiniciar
-- Permissão negada ao salvar arquivo → pasta em `C:\...` do usuário, não em Program Files
-- Windows diferente (10 vs 11) → mesmos passos; prints dos dois quando possível
-- Proxy/empresa bloqueando → rede pessoal para as aulas de setup
-- Firebase em português/inglês do console → mapa visual dos menus
-- “Preciso de cartão no Firebase?” → **não** no caminho feliz do curso (Spark)
-
-**Checklist de aceite 0.4:** Cursor abre uma pasta vazia · Google logado · Firebase com projeto criado · GitHub com perfil · postou “setup ok” na comunidade.
-
-### Aula 0.5 — Custo e limites da IA (Cursor) — aula que faltava
-- O curso depende do Cursor: o que é plano free vs pago (visão de produto, sem virar consultoria de pricing eterno)
-- O que acontece quando acaba cota / a IA “trava” ou fica lenta
-- Plano B: pausar, resumir o pedido, novo chat com contexto curto, esperar reset de cota
-- Como não queimar crédito: pedidos pequenos, um objetivo por vez, não “refaz o app inteiro”
-- Recado: limite de ferramenta é normal; não é “você que é burro”
-
-### Aula 0.6 — Como pedir as coisas (prompt que funciona)
-- Contexto + objetivo + restrições + definição de pronto
-- Exemplo ruim vs bom (Forge Agenda)
-- Salvar prompts que deram certo (arquivo ou Notion do aluno)
-
-**Entrega do módulo:** setup validado na comunidade + glossário localizado + primeiro prompt consciente.
+| **HTML / JS** | Estrutura da página / comportamento dos botões. |
+| **Bootstrap** | Visual pronto (botões, formulários). |
+| **Template Forge** | Projeto-base do curso que o aluno copia e adapta. |
+| **localStorage** | Dados só naquele navegador. |
+| **Firebase** | Login, banco e site hospedado sem montar servidor. |
+| **Auth / Google** | Login do profissional. |
+| **Firestore** | Onde ficam serviços, horários e agendamentos. |
+| **Hosting** | URL pública do app. |
+| **Rules** | Quem pode ler/escrever cada dado. |
+| **UID** | Código do usuário logado (aparece no link `?pro=`). |
+| **apiKey (Firebase)** | Identificador **público** do app web — não é senha; a proteção real são as rules. |
+| **Deploy** | Publicar versão nova. |
+| **Cache** | Navegador mostrando página velha; tente Ctrl+F5. |
+| **Git / GitHub** | Histórico e cópia do projeto. |
+| **Terminal** | Janelinha de texto onde a IA (ou você) cola comandos curtos. |
+| **Node / npm** | Ferramenta que o Firebase CLI e os testes usam — a IA instala. |
+| **Firebase CLI** | Programa que publica o site (`firebase deploy`) — a IA instala e usa. |
+| **Live Server** | Extensão do Cursor para abrir o site local sem Python. |
+| **Prompt** | O pedido à IA. |
+| **Agente (Cursor)** | IA que edita arquivos com sua aprovação. |
+| **Diff** | O que mudou; o chefe olha antes de aceitar. |
+| **LGPD** | Cuidado com dado pessoal (nome do cliente). |
+| **Exclusão** | Apagar de verdade o registro (diferente de só “cancelar”). |
+| **XSS** | Texto de formulário virando código perigoso na tela. |
+| **Transação** | Gravar agenda e horário ocupado “juntos” para reduzir conflito. |
+| **dayBusy** | Grade pública de horários ocupados **sem** nome do cliente. |
+| **permission-denied** | O Firebase bloqueou a ação (quase sempre rules). |
+| **App Check** | Proteção extra (reCAPTCHA); disponível no Spark com cota grátis. |
+| **Cloud Functions / Blaze** | Código no servidor Firebase; Blaze pede cartão — fora do caminho feliz. |
+| **README** | Texto que explica o projeto; deve bater com a realidade. |
+| **Vitest / teste** | Conferência automática de regras da lógica; a IA roda e explica. |
+| **MVP / micro-SaaS** | Menor versão útil / produto pequeno focável. |
 
 ---
 
-## Módulo 1 — Vibe Coding com propósito
+## Módulo 0 — Mentalidade e setup via IA
 
-### Aula 1.1 — Escolhendo um problema que vende
-- Agenda para profissional liberal / Hotmart / serviço local
-- MVP: cadastrar serviço → abrir horário → cliente agenda
+### 0.1 — O que você vai construir
+- Demo do Forge publicado
+- Você não programa; você **pede e confere**
+- Glossário: onde fica
 
-### Aula 1.2 — Desenhar o fluxo antes do código
-- 3 telas: início, painel, agendar
-- Papéis: profissional logado vs cliente sem login
-- Exercício: fluxo do próprio nicho
-- **Check-in #1 (formativo):** postar o desenho/foto do fluxo na comunidade
+### 0.2 — Vibe vs qualidade
+- Tela bonita ≠ produto
+- Critério: usable, no ar, dado mínimo cuidado
 
-### Aula 1.3 — Primeiro app só no navegador
-- HTML + JS simples (sem framework)
-- Dados no `localStorage` (protótipo honesto)
-- Rodar com servidor local
-- Troubleshooting: porta ocupada, abriu `file://` em vez do servidor
+### 0.3 — Você é o chefe
+- Pedidos pequenos, validar no navegador, ler o diff, dizer não
+- Entrar na comunidade (ritmo próprio: postar quando fizer, sem data de turma)
 
-### Aula 1.4 — Conversando com o agente (Cursor)
-- Agent vs Chat
-- Feature por feature (serviço, disponibilidade, slots)
-- Quando a IA inventa demais: voltar o pedido, restringir arquivos
+### 0.4 — Setup via IA (`tipo: guia`)
+**Prompt modelo:** *“Estou no Windows. Quero usar o template Forge Agenda no Cursor. Me guie para: abrir a pasta do projeto, instalar a extensão Live Server, e conferir se consigo ver o site local. Não use Python.”*
 
-### Aula 1.5 — Regras do jogo no projeto
-- Pasta limpa, nomes claros, README honesto (“ainda é local”)
-- Ideia de regras do Cursor em linguagem leiga
+Checklist de aceite:
+- Cursor abre a pasta do template
+- Live Server (ou equivalente) mostra o site
+- Conta Google + Firebase Spark (sem cartão) + GitHub criados
 
-### Aula 1.6 — Checkpoint: agenda local funcionando
-- Checklist de aceite + gravar tela do fluxo
-- Recado: ainda é protótipo — e está certo
+**FAQ (anexo):** antivírus, permissão de pasta, Cursor login, console Firebase em PT/EN, “preciso de cartão?” → não no Spark.
 
-**Entrega:** agenda v0 local + check-in #1 feito.
+### 0.5 — Custo do Cursor (e da verdade na venda)
+- Free tem cota de agente
+- Se travar: novo chat curto, esperar cota, ou plano pago
+- Landing do curso deve dizer o custo esperado
 
----
+### 0.6 — Prompt que funciona
+- Contexto + objetivo + restrições + “como saberei que está pronto”
+- Salvar prompts bons
 
-## Módulo 2 — Backend e dados na nuvem
-*Antes era metade de um módulo único inchado. Aqui só: Firebase, Auth, dados, UI. Deploy fica no M3.*
-
-### Aula 2.1 — Por que sair do localStorage
-- Outro celular, outro usuário, perda de dados
-- “Backend como serviço” sem virar DevOps
-
-### Aula 2.2 — Firebase na prática (visão de produto)
-- Auth, Firestore, Hosting (Hosting só conceituado; publish no M3)
-- Console: Get started, provedor Google
-- Spark sem cartão — reforço
-
-### Aula 2.3 — Migrar com a IA (sem drama)
-- Prompt: trocar localStorage por Firestore mantendo as telas
-- O que conferir depois
-- História real: e-mail/limites → Google Auth
-
-### Aula 2.4 — Login do profissional e link do cliente
-- Sessão → painel
-- Link `agendar.html?pro=UID`
-- Público vs privado (conceito; LGPD profunda no M5)
-
-### Aula 2.5 — UI que não parece exercício
-- Bootstrap “bom o suficiente”
-- Toasts, loading, modal no lugar do `confirm`
-- Validação em linguagem humana
-- Recado: bonito demais sem fluxo claro ainda é protótipo
-
-**Entrega do módulo:** app falando com Firebase localmente (ou preview) + login Google + formulários usáveis. **Ainda pode não ter URL final.**
+**Entrega:** ambiente ok + post “setup ok” na comunidade.
 
 ---
 
-## Módulo 3 — Publicação e versionamento
-*Segunda metade do antigo Módulo 2 — respiro e checkpoint “está no ar”.*
+## Módulo 1 — Primeiro fluxo no template
 
-### Aula 3.1 — Deploy de verdade (Firebase Hosting)
-- `firebase deploy` (ou fluxo guiado pela IA)
-- URL pública, testar no celular
-- Erros clássicos: 403, ToS, Auth não iniciado
+### 1.1 — Por que template (não app do zero)
+- Decisão explícita: seguir Forge até publicar com segurança
+- Nicho = adaptação depois
 
-### Aula 3.2 — Quando o site “não atualiza”
-- Cache do navegador (história real do Forge)
-- Ctrl+F5 / versionar scripts (`?v=`)
-- Recado: às vezes o backend já está certo e o navegador mente
+### 1.2 — Entender o fluxo (sem código)
+- 3 telas; profissional vs cliente
+- **Check-in #1:** postar print do fluxo / entendimento (após concluir M1 — ver trilha)
 
-### Aula 3.3 — GitHub sem medo
-- Por que versionar
-- Commit, push, README alinhado à realidade (Hosting, não “só localStorage”)
-- Não precisa ser git expert
+### 1.3 — Rodar o template local
+- Live Server
+- Conferir: abre início, login, agendar
 
-### Aula 3.4 — Checkpoint público
-- Checklist: profissional loga · cliente agenda · URL no celular
-- **Check-in #2:** postar a URL na comunidade
-- Revisão por pares leve: outro aluno abre o link e marca 3 itens do checklist
+### 1.4 — Pedir a primeira melhoria
+- Feature pequena (texto, validação, empty state)
+- Conferir no navegador
 
-**Entrega:** URL `*.web.app` (ou equivalente) + repo no GitHub + check-in #2.
+### 1.5 — Regras leves do projeto
+- Pedir à IA: README honesto (“ainda local / já na nuvem”)
+
+### 1.6 — Checkpoint local
+- Checklist + **Check-in #1** aqui (fim do M1)
+
+**Entrega:** template rodando local + check-in #1.
 
 ---
 
-## Módulo 4 — Qualidade sem ser programador
+## Módulo 2 — Dados na nuvem (pedir migração)
 
-### Aula 4.1 — Separar responsabilidades (ideia limpa)
-- `logic` · `db` · `ui`
-- Por que isso ajuda a IA e o aluno
+### 2.1 — Por que sair do só-local
+- Outro celular / perda de dados
 
-### Aula 4.2 — Quando quebra: ler o erro como chefe
-- Log copiável → colar no chat
-- Mensagem amigável vs detalhe técnico
+### 2.2 — Firebase em linguagem de produto
+- Auth, Firestore, Hosting (Hosting detalhado no M3)
+- Spark sem cartão
+
+### 2.3 — Pedir a migração
+**Prompt:** *“Conecta este template ao MEU projeto Firebase. Atualize `js/config.js` e `.firebaserc`. Mantenha as telas. Me diga o que clicar no console (Auth Google, Firestore).”*
+
+**Conferir:** login Google funciona; dados aparecem depois de recarregar.
+
+### 2.4 — Link do cliente
+- `agendar.html?pro=UID`
+- Conferir: abrir o link sem estar logado
+
+### 2.5 — UI usable
+**Prompt:** toasts, loading, modal, validações claras  
+**Conferir:** erro e sucesso visíveis
+
+**Entrega:** app com Firebase; ainda pode não ter URL final.
+
+---
+
+## Módulo 3 — Publicar e versionar
+
+### 3.0 — Checklist “antes do deploy” (via IA)
+**Prompt:** *“Instale o que faltar para eu publicar este projeto Firebase no Windows: Git, Node LTS, Firebase CLI. Depois faça login no Firebase CLI. Não me peço para decorar comandos — me diga só o que colar e o que esperar ver.”*
+
+### 3.1 — Pedir o deploy
+**Prompt:** *“Faça deploy de hosting e rules deste projeto.”*  
+**Conferir:** abrir URL no celular
+
+### 3.2 — Site não atualizou?
+- Primeiro: Ctrl+F5
+- Se falhar: *“O site não atualiza depois do deploy. Resolva cache/versionamento.”*
+- (Pincelada: às vezes o navegador mente)
+
+### 3.3 — GitHub via IA
+**Prompt:** *“Suba este projeto ao meu GitHub e atualize o README com a URL real.”*  
+**Conferir:** repo existe; README não mente
+
+### 3.4 — Checkpoint público + Check-in #2
+- Postar URL na comunidade
+- Par (ou moderador) abre o link e usa a rubrica “como verificar”
+
+**Entrega:** URL pública + GitHub + check-in #2.
+
+---
+
+## Módulo 4 — Qualidade (pedir + conferir)
+
+### 4.1 — Organização do código
+**Pedir:** *“Organize mantendo nomes claros (logic / db / ui). Não mude o comportamento.”*  
+**Conferir:** pastas/arquivos com nomes que fazem sentido (não precisa entender o código)
+
+### 4.2 — Quando quebra
+- Copiar log → colar no chat
 - Reproduzir antes de “corrige tudo”
 
-### Aula 4.3 — Primeiro teste junto (linha por linha)
-- Instalar Node **agora** (se ainda não), com FAQ da 0.4
-- Abrir um teste de conflito de horário já pronto
-- Ler em voz alta: “dado de entrada → expectativa → se falhar, a regra quebrou”
-- Rodar `npm test` uma vez com o aluno
-- Recado: você não está virando engenheiro de QA; está criando uma rede de segurança
+### 4.3 — Testes com a IA (um exemplo em voz alta)
+**Pedir:** *“Rode os testes e me explique em português se passou ou o que falhou.”*  
+Ler **um** caso juntos (conflito de horário) só para ver o ritual  
+**Conferir:** terminal mostrou pass/fail e a IA explicou
 
-### Aula 4.4 — Testes que importam (generalizar com cuidado)
-- O que vale testar (conflito, permissão na lógica)
-- O que **não** testar (string “bootstrap” no HTML)
-- Ritual: depois de mudança crítica na lógica → `npm test`
+### 4.4 — Ritual, não framework
+- Depois de mudar regra de horário: pedir para rodar testes de novo
+- Honestidade: se o repo tiver teste fraco, a aula mostra e pede melhoria à IA
 
-### Aula 4.5 — UX de produto pequeno
-- Estados vazios, loading, sucesso, falha
-- Cancelar / remarcar com confirmação
-- “Eu deixaria minha mãe usar?”
+### 4.5 — UX
+- Empty states, cancelar/remarcar com confirmação  
+**Conferir:** “minha mãe usaria?”
 
-### Aula 4.6 — Documentação mínima
-- README verdadeiro
-- Um guia Firebase curto
-- Evitar markdowns contraditórios
+### 4.6 — README verdadeiro
+**Pedir:** listar páginas e js reais  
+**Conferir:** bate com a pasta
 
-### Aula 4.7 — Checkpoint de qualidade
-- Fluxo na nuvem + testes + pedir “revisão de PR” à IA e filtrar o que importa
+### 4.7 — Checkpoint de qualidade
 
-**Entrega:** mesma URL com UX + pelo menos a ritualística de teste + docs coerentes.
+**Entrega:** mesma URL mais polida + ritual de teste conhecido.
 
 ---
 
-## Módulo 5 — Segurança, LGPD e limites honestos
+## Módulo 5 — Segurança e LGPD (pedir correção + conferir)
 
-### Aula 5.1 — Como um sênior reprova um protótipo
-- Lista real: cliente público, create frouxo, e-mail exposto, XSS, corrida de horário
-- Revisão guiada do Forge
+### 5.1 — Olhar como “cliente chato”
+- Lista de falhas clássicas (dado público, XSS, etc.)
 
-### Aula 5.2 — LGPD na prática (sem juridiquês)
-- Nome do cliente = dado pessoal
-- Quem pode ler o quê
-- Coletar o mínimo
+### 5.2 — LGPD mínima (sem juridiquês)
+- Nome = dado pessoal
+- Aviso na tela de agendar
+- **Cancelar ≠ apagar:** precisa poder **excluir** o registro (botão no painel)
+- Tempo de guarda: política simples (“enquanto necessário para o atendimento / até você pedir exclusão”)
+**Conferir:** existe aviso; existe exclusão de verdade
 
-### Aula 5.3 — Regras do Firestore que o aluno entende
-- `appointments` só o dono lê
-- `dayBusy` público sem nome
-- Validar campos no create
-- Demo de `permission-denied` e como ler o erro
+### 5.3 — Privacidade na prática
+**Conferir (rubrica):** aba anônima — o **nome do cliente** aparece em algum lugar público? Se sim: *“Corrija: anônimo não pode ler nome de cliente.”*
 
-### Aula 5.4 — Anti-XSS e formulário público
-- Nome do cliente no painel
-- Escape / sanitize com critério
-- Não confiar em texto de formulário aberto
+### 5.4 — Formulário público / XSS
+**Pedir:** escape/sanitize  
+**Conferir:** tentar nome estranho com `<` e ver se não “quebra” a página
 
-### Aula 5.5 — Conflito de horário e “quase produção”
-- Transação no cliente: o que resolve e o que não
-- Spark: o que não fecha sem backend (Functions / Blaze)
+### 5.5 — Conflito de horário e limites do Spark
+- Transação no cliente = melhora o fluxo normal
+- Risco residual: escrita direta / spam de agendamentos sem login
+**Pedir:** atualizar SECURITY.md com riscos honestos
 
-### Aula 5.6 — Free vs pagar (decisão de produto)
-- Por que Functions pedem Blaze
-- Quando Spark basta (teste, curso, confiança)
-- Quando cartão faz sentido (cliente real, atacante, escala)
-- Sem obrigar upgrade no caminho feliz
+### 5.6 — Free vs pagar + App Check
+- Functions/Blaze = cartão; fora do caminho feliz
+- **App Check** pode rodar no **Spark** (reCAPTCHA, cota grátis) — pincelada: *“Se quiser, ative App Check no Spark e me guie.”*
+- Sem obrigar
 
-### Aula 5.7 — SECURITY.md e conversa com o cliente
-- Explicar risco residual sem mentir
-- Checklist pré-venda / pré-Hotmart
-- **Check-in #3:** postar “li o SECURITY e entendi X / ainda tenho dúvida Y”
+### 5.7 — Explicar risco sem mentir + Check-in #3
+- SECURITY.md + conversa com cliente
+- Incluir: spam de creates públicos; dayBusy; o que o dono controla (link, exclusão)
 
-**Entrega:** hardening Spark + doc de segurança + check-in #3.
+**Entrega:** hardening + doc + check-in #3.
 
 ---
 
-## Módulo 6 — Método, comunidade e próximo nível
-*Antes M5; agora com comunidade já aquecida desde o M0.*
+## Módulo 6 — Método, pares e nicho
 
-### Aula 6.1 — De uma conversa a um sistema de trabalho
-- Regras do Cursor, prompts salvos, glossário atualizado
+### 6.1 — Sistema de trabalho
+- Prompts salvos, glossário, pedir em fatias
 
-### Aula 6.2 — Pedidos em fatias
-- Ordem boa: rules → XSS → limpeza
-- Ordem ruim: “deixa produção-ready” de uma vez
+### 6.2 — Ordem boa de pedidos
+- Privacidade → exclusão/aviso → limpeza (não “produção-ready” de uma vez)
 
-### Aula 6.3 — Revisar como product owner
-- Diff, commit, deploy, teste manual
-- Quando reverter (história: tentativa Blaze / voltar versão)
+### 6.3 — Product owner leigo
+- Diff, deploy, teste manual, quando pedir revert
 
-### Aula 6.4 — Revisão por pares (obrigatória leve)
-- Trocar URL + rubrica com outro aluno
-- 15 minutos: o que passou / o que falhou / um elogio / um risco
-- Instrutor/moderador só intercede em deadlock (opcional no plano do curso)
+### 6.4 — Revisão por pares (obrigatória leve)
+- 15 min com rubrica “como verificar”
+- Sem par → moderador
 
-### Aula 6.5 — Extensões do Forge (backlog)
-- WhatsApp/e-mail, multi-profissional, pagamento (mapa)
-- App Check / Functions quando fizer sentido
+### 6.5 — Backlog opcional
+- WhatsApp, pagamento (mapa)
+- App Check / Functions se fizer sentido
 
-### Aula 6.6 — Seu próprio micro-SaaS
-- Template de nicho
-- Copiar o método, não o código cegamente
+### 6.6 — Adaptar ao nicho
+**Prompt:** *“Adapte este template Forge ao meu nicho X mantendo login, agenda e privacidade do nome do cliente.”*
 
-### Aula 6.7 — Encerramento e portfólio
-- Antes/depois
-- Link + GitHub + 3 aprendizados
-- Pitch de 1 minuto
-- Comunidade continua depois do certificado
+### 6.7 — Encerramento
+- URL + GitHub + 3 aprendizados + pitch 1 min
 
-**Entrega final:** Forge (ou fork) publicado + rubrica preenchida + pares ok + pitch.
+**Entrega final:** template (ou nicho) no ar + rubrica + pares + pitch.
 
 ---
 
-## Trilha intensiva (11 dias — pacing recomendado)
+## Trilha sugerida (11 dias) — ritmo próprio
 
-Mesmo padrão do antigo Módulo 2 inchado: conteúdo denso de **segurança** parte em dois dias (conceitos/mão na rules vs. limites de produto e documento).
+Sugestão de calendário para quem quer disciplina; **não exige turma ao vivo**.
 
 | Dia | Conteúdo |
 |-----|----------|
-| 1 | M0 (mentalidade, setup, custo Cursor, glossário) |
-| 2 | M1.1–1.3 (ideia → app local) |
-| 3 | M1.4–1.6 (agente + checkpoint local) + check-in #1 |
-| 4 | M2.1–2.3 (Firebase + migração) |
-| 5 | M2.4–2.5 (auth + UI) |
-| 6 | M3 (deploy + GitHub + URL) + check-in #2 |
-| 7 | M4.1–4.4 (erros + primeiro teste) |
-| 8 | M4.5–4.7 (UX + docs) |
-| 9 | M5.1–5.4 (revisão sênior, LGPD, rules, XSS) |
-| 10 | M5.5–5.7 (transação/limites Spark, free vs pagar, SECURITY.md) + check-in #3 |
-| 11 | M6 (método + pares + pitch) |
+| 1 | M0 |
+| 2 | M1.1–1.3 |
+| 3 | M1.4–1.6 + **check-in #1** |
+| 4 | M2.1–2.3 |
+| 5 | M2.4–2.5 |
+| 6 | M3 + **check-in #2** |
+| 7 | M4.1–4.4 |
+| 8 | M4.5–4.7 |
+| 9 | M5.1–5.4 |
+| 10 | M5.5–5.7 + **check-in #3** |
+| 11 | M6 |
 
-### Variantes de compressão
-
-| Versão | Quando usar | Como comprimir |
-|--------|-------------|----------------|
-| **11 dias (padrão)** | Não-devs, piloto, Hotmart com ritmo humano | — |
-| **10 dias** | Turma avançada / pouco tempo | Juntar dias 9+10 num único dia de M5 (é mais conceitual; só manter se o piloto **não** mostrar fadiga) |
-| **7 dias** | Intensivão | Comprimir também 4+5 e 7+8; aceitar sobrecarga consciente |
-
-**Critério de piloto:** se no Dia 9 único (variante 10 dias) aparecer cansaço ou abandono, voltar ao padrão 11 dias — não “empurrar” segurança num bloco só.
+Variante 10 dias: juntar 9+10 só se o piloto não mostrar fadiga.  
+Variante 7 dias: compressão consciente.
 
 ---
 
-## Materiais por aula (padrão de produção)
+## Rubrica (com “como verificar”)
 
-1. Roteiro (gancho, demo, erro comum, fechamento)
-2. Prompt modelo
-3. Checklist de aceite
-4. Asset (print console / URL / trecho de rules)
-5. Recado de honestidade (protótipo / produto de teste / ainda não é banco)
-6. Atualização do glossário se houver termo novo
-
----
-
-## O que NÃO fazer neste curso
-
-- Não prometer “virar engenheiro sênior em 3 semanas”
-- Não obrigar Blaze / cartão no caminho feliz
-- Não ensinar 4 IDEs por marketing — **Cursor no centro**
-- Não trocar o fio Forge Agenda por projetos genéricos sem método
-- Não esconder falhas: permission-denied, cache, README mentiroso, tentativa de Functions
-- Não deixar o aluno sozinho até o encerramento — comunidade desde o dia 1
+| Critério | Nível | Como verificar (leigo / par) |
+|----------|--------|------------------------------|
+| Fluxo completo na URL pública | Obrigatório | Abrir a URL no celular; agendar um horário de ponta a ponta |
+| Profissional loga; cliente agenda sem login | Obrigatório | Aba 1: login Google no painel. Aba anônima: só o link de agendar |
+| Nome do cliente não listável por anônimo | Obrigatório | Aba anônima: vasculhar telas públicas; **não** deve aparecer nome de cliente de outra pessoa |
+| Aviso de privacidade na tela de agendar | Obrigatório | Abrir `agendar.html` e achar o texto de privacidade |
+| Dono consegue excluir dados do cliente | Obrigatório | No painel: botão de excluir; depois o nome some da agenda |
+| Feedback de UI | Obrigatório | Forçar um erro (campo vazio) e um sucesso; ver mensagem |
+| README verdadeiro | Obrigatório | Abrir README e conferir URL + arquivos citados |
+| Check-ins #1–#3 | Obrigatório | Posts na comunidade |
+| Revisão por pares (6.4) | Obrigatório | Par preenche esta tabela |
+| Anti-XSS básico | Desejável | No agendar, tentar nome com `<script>` ou `<b>`; painel não deve “estranhar” a página |
+| Ritual de testes via IA | Desejável | Pedir à IA rodar testes e colar o resumo no check-in |
+| SECURITY / riscos com palavras próprias | Desejável | Aluno cita spam de agenda + dayBusy em 3 frases |
+| Nicho próprio | Bônus | URL adaptada |
 
 ---
 
-## Rubrica de “software de qualidade”
+## O que NÃO fazer
 
-| Critério | Nível |
-|----------|--------|
-| Fluxo completo na URL pública | Obrigatório |
-| Profissional loga; cliente agenda sem login | Obrigatório |
-| Nome do cliente não listável por anônimo | Obrigatório |
-| Feedback de UI (loading/erro/sucesso) | Obrigatório |
-| README verdadeiro | Obrigatório |
-| Check-ins #1–#3 feitos na comunidade | Obrigatório |
-| Ritual `npm test` após mudança de lógica | Desejável |
-| SECURITY / limites explicados com palavras próprias | Desejável |
-| Revisão por pares (M6.4) — obrigatória leve | Obrigatório |
-| Nicho próprio (fork) | Bônus |
+- Não virar curso de terminal/Node/Firebase CLI
+- Não obrigar Blaze no caminho feliz
+- Não mandar o aluno construir app do zero e depois ensinar peças só do Forge
+- Não ensinar “cancelar = apagar dado” (é falso)
+- Não esconder custo do Cursor na venda
+- Não prometer “sênior em 3 semanas”
 
 ---
 
-## Nomes sugeridos (Hotmart / landing)
+## Landing (checklist de honestidade)
 
-- **Forge Builder:** Crie software de qualidade com IA — sem saber programar
-- Sub: Do vibe coding ao app na nuvem, com LGPD básica e critério de produto
-- Projeto: construa sua **Forge Agenda** e adapte ao seu mercado
+- [ ] Firebase Spark sem cartão no caminho feliz  
+- [ ] Cursor: free pode não bastar; custo esperado  
+- [ ] Ritmo próprio + comunidade (pares/moderador)  
+- [ ] Projeto = template Forge + adaptação de nicho  
 
 ---
 
-## Próximos artefatos de produção
+## Próximos artefatos
 
-1. FAQ completo da Aula 0.4 (PDF) + prints Windows 10/11
-2. Roteiro detalhado do **Módulo 3** (deploy — maior “wow”)
-3. Pack de prompts do Forge
-4. Rubrica imprimível + template de post dos check-ins
-5. Glossário em página pinada da comunidade
+1. Pack de prompts (PDF) espelhando cada aula  
+2. FAQ da 0.4  
+3. Rubrica imprimível  
+4. Texto pronto da landing (custos)

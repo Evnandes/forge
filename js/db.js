@@ -171,7 +171,7 @@ async function dbListAppointments(userId) {
   const snap = await db.collection("appointments").where("userId", "==", userId).get();
   return snap.docs
     .map((d) => mapAppointment(d.id, d.data()))
-    .filter((a) => a.status === "agendado")
+    .filter((a) => a.status === "agendado" || a.status === "cancelado")
     .sort((a, b) => String(a.start).localeCompare(String(b.start)));
 }
 
@@ -256,6 +256,23 @@ async function dbCancelAppointment(id) {
   });
 
   return dbGetAppointment(id);
+}
+
+async function dbDeleteAppointment(id) {
+  const { db } = getFirebase();
+  const current = await dbGetAppointment(id);
+  if (!current) throw new Error("Agendamento não encontrado.");
+  const dateStr = current.date || ForgeLogic.datePart(current.start);
+  const dayRef = db.collection("dayBusy").doc(ForgeLogic.dayBusyId(current.userId, dateStr));
+  const appointmentRef = db.collection("appointments").doc(id);
+
+  await db.runTransaction(async (tx) => {
+    const daySnap = await tx.get(dayRef);
+    const intervals = daySnap.exists ? [...(daySnap.data().intervals || [])] : [];
+    const next = intervals.filter((item) => item.appointmentId !== id);
+    tx.set(dayRef, { userId: current.userId, date: dateStr, intervals: next }, { merge: true });
+    tx.delete(appointmentRef);
+  });
 }
 
 async function dbRescheduleAppointment(id, startIso, endIso) {

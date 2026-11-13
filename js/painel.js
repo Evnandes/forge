@@ -90,12 +90,16 @@ async function bootPainel() {
     for (const a of appointments) {
       const service = await dbGetService(a.serviceId);
       const nomeServico = service ? service.name : "(serviço removido)";
-      html.push(`<li class="list-group-item d-flex flex-wrap justify-content-between align-items-center gap-2">
-        <span><strong>${ForgeUI.escapeHtml(globalThis.formatDateTime(a.start))}</strong> — ${ForgeUI.escapeHtml(nomeServico)} — ${ForgeUI.escapeHtml(a.clientName)}</span>
-        <span class="btn-group btn-group-sm">
-          <button type="button" class="btn btn-outline-danger" data-cancel="${a.id}">Cancelar</button>
+      const statusLabel = a.status === "cancelado" ? " (cancelado)" : "";
+      const actions =
+        a.status === "agendado"
+          ? `<button type="button" class="btn btn-outline-danger" data-cancel="${a.id}">Cancelar</button>
           <button type="button" class="btn btn-outline-primary" data-resched="${a.id}">Remarcar</button>
-        </span>
+          <button type="button" class="btn btn-outline-dark" data-delete="${a.id}">Excluir dados</button>`
+          : `<button type="button" class="btn btn-outline-dark" data-delete="${a.id}">Excluir dados</button>`;
+      html.push(`<li class="list-group-item d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <span><strong>${ForgeUI.escapeHtml(globalThis.formatDateTime(a.start))}</strong> — ${ForgeUI.escapeHtml(nomeServico)} — ${ForgeUI.escapeHtml(a.clientName)}${statusLabel}</span>
+        <span class="btn-group btn-group-sm">${actions}</span>
       </li>`);
     }
     list.innerHTML = html.join("");
@@ -286,6 +290,7 @@ async function bootPainel() {
 
   document.getElementById("listaAgenda").addEventListener("click", async (event) => {
     const cancelId = event.target.getAttribute("data-cancel");
+    const deleteId = event.target.getAttribute("data-delete");
     const reschedId = event.target.getAttribute("data-resched");
     if (cancelId) {
       const confirmed = await ForgeUI.confirm({
@@ -304,6 +309,28 @@ async function bootPainel() {
           loadingText: "Cancelando...",
           successMessage: "Agendamento cancelado com sucesso.",
           errorMessage: "Não foi possível cancelar o agendamento."
+        }
+      );
+      if (ok) await renderAgenda();
+    }
+    if (deleteId) {
+      const confirmed = await ForgeUI.confirm({
+        title: "Excluir dados do cliente",
+        message:
+          "Isso apaga de verdade o agendamento e o nome do cliente deste registro. Não dá para desfazer. Continuar?",
+        confirmText: "Excluir dados"
+      });
+      if (!confirmed) return;
+      const ok = await ForgeUI.runRequest(
+        "excluirAgendamento",
+        async () => {
+          await dbDeleteAppointment(deleteId);
+          return true;
+        },
+        {
+          loadingText: "Excluindo...",
+          successMessage: "Dados do cliente excluídos.",
+          errorMessage: "Não foi possível excluir os dados."
         }
       );
       if (ok) await renderAgenda();

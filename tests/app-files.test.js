@@ -19,25 +19,31 @@ describe("arquivos criticos do app", () => {
       "js/ui.js",
       "js/slots.js",
       "js/config.js",
+      "js/agendar.js",
+      "js/painel.js",
       "firestore.rules",
-      "SECURITY.md"
+      "SECURITY.md",
+      "README.md"
     ]) {
       expect(existsSync(join(root, file))).toBe(true);
     }
   });
 
-  it("protege leitura de appointments e expoe dayBusy", () => {
+  it("protege leitura e permite exclusao pelo dono", () => {
     const rules = read("firestore.rules");
     expect(rules).toContain("match /appointments/{id}");
     expect(rules).toContain("match /dayBusy/{dayId}");
     expect(rules).toMatch(/allow read: if isOwner\(resource\.data\.userId\)/);
+    expect(rules).toMatch(/allow delete: if isOwner\(resource\.data\.userId\)/);
   });
 
-  it("ui escapa html e db usa transacao", () => {
+  it("ui escapa html, db usa transacao e exclusao", () => {
     expect(read("js/ui.js")).toContain("function escapeHtml");
     expect(read("js/db.js")).toContain("runTransaction");
-    expect(read("js/db.js")).toContain("dayBusy");
+    expect(read("js/db.js")).toContain("dbDeleteAppointment");
     expect(read("js/painel.js")).toContain("ForgeUI.escapeHtml");
+    expect(read("js/painel.js")).toContain("data-delete");
     expect(read("js/agendar.js")).toContain("ForgeUI.escapeHtml");
+    expect(read("agendar.html")).toMatch(/privacidade|nome necessário|excluí/i);
   });
 });
