@@ -8,23 +8,14 @@
 <body>
   <p><a href="index.html">Início</a></p>
   <h1>Entrar</h1>
-  <p>Se você acabou de se cadastrar, confirme o e-mail antes de entrar.</p>
-  <form id="form">
-    <p>
-      <label>E-mail<br>
-        <input name="email" type="email" required>
-      </label>
-    </p>
-    <p>
-      <label>Senha<br>
-        <input name="password" type="password" required>
-      </label>
-    </p>
-    <button type="submit">Entrar</button>
-  </form>
+  <p>Use sua conta Google. Sem senha do site e sem e-mail de confirmação.</p>
+  <p>
+    <button type="button" id="btnGoogle">Continuar com Google</button>
+  </p>
   <p id="erro" style="color: red;"></p>
-  <p>Não tem conta? <a href="cadastro.html">Criar conta</a></p>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
   <script src="js/config.js"></script>
   <script src="js/db.js"></script>
   <script src="js/auth.js"></script>
@@ -32,26 +23,7 @@
     (async () => {
       if (!ensureConfigOrWarn()) return;
       await redirectIfLogged();
-      document.getElementById("form").addEventListener("submit", async (event) => {
-        event.preventDefault();
-        const erro = document.getElementById("erro");
-        erro.textContent = "";
-        const form = event.target;
-        try {
-          await dbSignIn({
-            email: form.email.value,
-            password: form.password.value
-          });
-          window.location.href = "painel.html";
-        } catch (e) {
-          const msg = String(e.message || e);
-          if (/confirm|email|valid/i.test(msg)) {
-            erro.textContent = "Não foi possível entrar. Confirme o e-mail (link que o Supabase enviou) e tente de novo.";
-          } else {
-            erro.textContent = msg;
-          }
-        }
-      });
+      await bindGoogleLogin("btnGoogle", "erro");
     })();
   </script>
 </body>

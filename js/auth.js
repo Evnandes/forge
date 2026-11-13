@@ -32,9 +32,24 @@ function ensureConfigOrWarn() {
   if (!window.forgeConfigOk()) {
     document.body.insertAdjacentHTML(
       "afterbegin",
-      "<p style='color:red'>Falta configurar o Supabase em <code>js/config.js</code>. Siga o arquivo <code>GUIA-PUBLICAR.md</code>.</p>"
+      "<p style='color:red'>Falta configurar o Firebase em <code>js/config.js</code>. Siga o arquivo <code>GUIA-FIREBASE.md</code>.</p>"
     );
     return false;
   }
   return true;
+}
+
+async function bindGoogleLogin(buttonId, erroId) {
+  const button = document.getElementById(buttonId);
+  if (!button) return;
+  button.addEventListener("click", async () => {
+    const erro = document.getElementById(erroId);
+    if (erro) erro.textContent = "";
+    try {
+      await dbSignInWithGoogle();
+      window.location.href = "painel.html";
+    } catch (e) {
+      if (erro) erro.textContent = e.message || String(e);
+    }
+  });
 }

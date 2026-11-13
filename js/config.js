@@ -1,14 +1,13 @@
 window.FORGE_CONFIG = {
-  supabaseUrl: "https://uqqldxvypiuhctcfebon.supabase.co",
-  supabaseAnonKey: "sb_publishable_EqTXPFORuVlUwDKAXv2TgA___iwG9vt"
+  apiKey: "COLE_AQUI",
+  authDomain: "COLE_AQUI",
+  projectId: "COLE_AQUI",
+  storageBucket: "COLE_AQUI",
+  messagingSenderId: "COLE_AQUI",
+  appId: "COLE_AQUI"
 };
 
 window.forgeConfigOk = function forgeConfigOk() {
   const c = window.FORGE_CONFIG || {};
-  return (
-    c.supabaseUrl &&
-    c.supabaseAnonKey &&
-    !String(c.supabaseUrl).includes("COLE_AQUI") &&
-    !String(c.supabaseAnonKey).includes("COLE_AQUI")
-  );
+  return c.apiKey && c.projectId && !String(c.apiKey).includes("COLE_AQUI");
 };

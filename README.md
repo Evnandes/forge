@@ -45,14 +45,16 @@ cadastro.html   → criar conta
 login.html      → entrar
 painel.html     → serviços, disponibilidade e agenda
 agendar.html    → página do cliente
-js/             → lógica (dados no localStorage do navegador)
+js/             → lógica (dados no Firebase (Google Auth + Firestore))
 mapa-agendamentos.md → escopo do produto-prova
 ```
 
 ## Observações
 
 - Os dados ficam **só no navegador** (`localStorage`). Limpar dados do site apaga tudo.
-- Ainda **não há** backend, deploy nem design final.
+- Auth e banco: **Firebase**. Design e deploy (Vercel) vêm depois.
+
+Configure com o arquivo `GUIA-FIREBASE.md`.
 - Feito para validar a lógica do MVP de agendamentos do Forge.
 
 ## Repositório

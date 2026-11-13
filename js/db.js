@@ -1,281 +1,245 @@
-let supabaseClient = null;
+let app = null;
+let auth = null;
+let db = null;
 
-function getSupabase() {
+function getFirebase() {
   if (!window.forgeConfigOk || !window.forgeConfigOk()) {
-    throw new Error("Configure o Supabase em js/config.js (URL e chave anon).");
+    throw new Error("Configure o Firebase em js/config.js (cole a config do console).");
   }
-  if (!supabaseClient) {
-    supabaseClient = window.supabase.createClient(
-      window.FORGE_CONFIG.supabaseUrl,
-      window.FORGE_CONFIG.supabaseAnonKey
-    );
+  if (!app) {
+    app = firebase.initializeApp(window.FORGE_CONFIG);
+    auth = firebase.auth();
+    db = firebase.firestore();
   }
-  return supabaseClient;
+  return { auth, db };
 }
 
-function mapService(row) {
+function mapService(id, data) {
   return {
-    id: row.id,
-    userId: row.user_id,
-    name: row.name,
-    durationMinutes: row.duration_minutes,
-    price: row.price === null ? null : Number(row.price),
-    deleted: row.deleted
+    id,
+    userId: data.userId,
+    name: data.name,
+    durationMinutes: data.durationMinutes,
+    price: data.price === undefined || data.price === null ? null : Number(data.price),
+    deleted: !!data.deleted
   };
 }
 
-function mapAvailability(row) {
+function mapAvailability(id, data) {
   return {
-    id: row.id,
-    userId: row.user_id,
-    weekday: row.weekday,
-    start: String(row.start_time).slice(0, 5),
-    end: String(row.end_time).slice(0, 5)
+    id,
+    userId: data.userId,
+    weekday: data.weekday,
+    start: data.start,
+    end: data.end
   };
 }
 
-function mapAppointment(row) {
+function mapAppointment(id, data) {
   return {
-    id: row.id,
-    userId: row.user_id,
-    serviceId: row.service_id,
-    clientName: row.client_name,
-    start: row.start_at,
-    end: row.end_at,
-    status: row.status
+    id,
+    userId: data.userId,
+    serviceId: data.serviceId,
+    clientName: data.clientName,
+    start: data.start,
+    end: data.end,
+    status: data.status
   };
+}
+
+function waitForAuth() {
+  const { auth } = getFirebase();
+  return new Promise((resolve) => {
+    const unsub = auth.onAuthStateChanged((user) => {
+      unsub();
+      resolve(user);
+    });
+  });
 }
 
 async function dbGetSessionUser() {
-  const sb = getSupabase();
-  const { data: authData, error: authError } = await sb.auth.getUser();
-  if (authError) throw authError;
-  if (!authData.user) return null;
-  const { data, error } = await sb
-    .from("profiles")
-    .select("id, name, email")
-    .eq("id", authData.user.id)
-    .single();
-  if (error) throw error;
-  return { id: data.id, name: data.name, email: data.email };
+  const { auth, db } = getFirebase();
+  const user = auth.currentUser || (await waitForAuth());
+  if (!user) return null;
+  const snap = await db.collection("profiles").doc(user.uid).get();
+  if (snap.exists) {
+    const data = snap.data();
+    return { id: user.uid, name: data.name || user.displayName || "Usuário", email: data.email || user.email || "" };
+  }
+  return {
+    id: user.uid,
+    name: user.displayName || "Usuário",
+    email: user.email || ""
+  };
 }
 
-async function dbCreateUser({ name, email, password }) {
-  const sb = getSupabase();
-  const { data, error } = await sb.auth.signUp({
-    email: email.trim().toLowerCase(),
-    password,
-    options: { data: { name: name.trim() } }
-  });
-  if (error) throw new Error(error.message);
-  if (!data.user) throw new Error("Não foi possível criar a conta.");
-  return { id: data.user.id, name: name.trim(), email: email.trim().toLowerCase() };
+async function ensureProfile(user) {
+  const { db } = getFirebase();
+  const ref = db.collection("profiles").doc(user.uid);
+  const snap = await ref.get();
+  const payload = {
+    name: user.displayName || (user.email ? user.email.split("@")[0] : "Usuário"),
+    email: user.email || ""
+  };
+  if (!snap.exists) {
+    await ref.set({ ...payload, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+  } else {
+    await ref.set(payload, { merge: true });
+  }
+  return { id: user.uid, name: payload.name, email: payload.email };
 }
 
-async function dbSignIn({ email, password }) {
-  const sb = getSupabase();
-  const { data, error } = await sb.auth.signInWithPassword({
-    email: email.trim().toLowerCase(),
-    password
-  });
-  if (error) throw new Error(error.message);
-  const user = await dbGetSessionUser();
-  if (!user) throw new Error("Conta criada, mas perfil não encontrado. Tente entrar de novo.");
-  return user;
+async function dbSignInWithGoogle() {
+  const { auth } = getFirebase();
+  const provider = new firebase.auth.GoogleAuthProvider();
+  const result = await auth.signInWithPopup(provider);
+  return ensureProfile(result.user);
 }
 
 async function dbClearSession() {
-  const sb = getSupabase();
-  const { error } = await sb.auth.signOut();
-  if (error) throw error;
+  const { auth } = getFirebase();
+  await auth.signOut();
 }
 
 async function dbListServices(userId) {
-  const sb = getSupabase();
-  const { data, error } = await sb
-    .from("services")
-    .select("*")
-    .eq("user_id", userId)
-    .eq("deleted", false)
-    .order("name");
-  if (error) throw error;
-  return (data || []).map(mapService);
+  const { db } = getFirebase();
+  const snap = await db.collection("services").where("userId", "==", userId).get();
+  return snap.docs
+    .map((d) => mapService(d.id, d.data()))
+    .filter((s) => !s.deleted)
+    .sort((a, b) => a.name.localeCompare(b.name));
 }
 
 async function dbCreateService({ userId, name, durationMinutes, price }) {
-  const sb = getSupabase();
+  const { db } = getFirebase();
   const payload = {
-    user_id: userId,
+    userId,
     name: name.trim(),
-    duration_minutes: Number(durationMinutes),
+    durationMinutes: Number(durationMinutes),
     price: price === "" || price === null || price === undefined ? null : Number(price),
-    deleted: false
+    deleted: false,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
   };
-  const { data, error } = await sb.from("services").insert(payload).select("*").single();
-  if (error) throw new Error(error.message);
-  return mapService(data);
+  const ref = await db.collection("services").add(payload);
+  return mapService(ref.id, payload);
 }
 
 async function dbUpdateService(serviceId, fields) {
-  const sb = getSupabase();
+  const { db } = getFirebase();
   const payload = {};
   if (fields.name !== undefined) payload.name = fields.name.trim();
-  if (fields.durationMinutes !== undefined) payload.duration_minutes = Number(fields.durationMinutes);
+  if (fields.durationMinutes !== undefined) payload.durationMinutes = Number(fields.durationMinutes);
   if (fields.price !== undefined) {
     payload.price = fields.price === "" || fields.price === null ? null : Number(fields.price);
   }
-  const { data, error } = await sb
-    .from("services")
-    .update(payload)
-    .eq("id", serviceId)
-    .select("*")
-    .single();
-  if (error) throw new Error(error.message);
-  return mapService(data);
+  await db.collection("services").doc(serviceId).update(payload);
+  const snap = await db.collection("services").doc(serviceId).get();
+  return mapService(snap.id, snap.data());
 }
 
 async function dbDeleteService(serviceId) {
-  const sb = getSupabase();
-  const { error } = await sb.from("services").update({ deleted: true }).eq("id", serviceId);
-  if (error) throw new Error(error.message);
+  const { db } = getFirebase();
+  await db.collection("services").doc(serviceId).update({ deleted: true });
 }
 
 async function dbListAvailability(userId) {
-  const sb = getSupabase();
-  const { data, error } = await sb.from("availability").select("*").eq("user_id", userId);
-  if (error) throw error;
-  return (data || []).map(mapAvailability);
+  const { db } = getFirebase();
+  const snap = await db.collection("availability").where("userId", "==", userId).get();
+  return snap.docs.map((d) => mapAvailability(d.id, d.data()));
 }
 
 async function dbAddAvailability({ userId, weekday, start, end }) {
   if (start >= end) throw new Error("Horário inicial deve ser antes do final.");
-  const sb = getSupabase();
-  const { data, error } = await sb
-    .from("availability")
-    .insert({
-      user_id: userId,
-      weekday: Number(weekday),
-      start_time: start,
-      end_time: end
-    })
-    .select("*")
-    .single();
-  if (error) throw new Error(error.message);
-  return mapAvailability(data);
+  const { db } = getFirebase();
+  const payload = {
+    userId,
+    weekday: Number(weekday),
+    start,
+    end
+  };
+  const ref = await db.collection("availability").add(payload);
+  return mapAvailability(ref.id, payload);
 }
 
 async function dbRemoveAvailability(id) {
-  const sb = getSupabase();
-  const { error } = await sb.from("availability").delete().eq("id", id);
-  if (error) throw new Error(error.message);
+  const { db } = getFirebase();
+  await db.collection("availability").doc(id).delete();
 }
 
 async function dbListAppointments(userId) {
-  const sb = getSupabase();
-  const { data, error } = await sb
-    .from("appointments")
-    .select("*")
-    .eq("user_id", userId)
-    .neq("status", "cancelado")
-    .order("start_at");
-  if (error) throw error;
-  return (data || []).map(mapAppointment);
+  const { db } = getFirebase();
+  const snap = await db.collection("appointments").where("userId", "==", userId).get();
+  return snap.docs
+    .map((d) => mapAppointment(d.id, d.data()))
+    .filter((a) => a.status === "agendado")
+    .sort((a, b) => String(a.start).localeCompare(String(b.start)));
 }
 
 async function dbGetAppointment(id) {
-  const sb = getSupabase();
-  const { data, error } = await sb.from("appointments").select("*").eq("id", id).maybeSingle();
-  if (error) throw error;
-  return data ? mapAppointment(data) : null;
+  const { db } = getFirebase();
+  const snap = await db.collection("appointments").doc(id).get();
+  if (!snap.exists) return null;
+  return mapAppointment(snap.id, snap.data());
 }
 
 async function dbCreateAppointment({ userId, serviceId, clientName, startIso, endIso }) {
-  const sb = getSupabase();
-  const { data: existing, error: listError } = await sb
-    .from("appointments")
-    .select("id, start_at, end_at, status")
-    .eq("user_id", userId)
-    .neq("status", "cancelado");
-  if (listError) throw new Error(listError.message);
-  const conflict = (existing || []).some((a) => a.start_at < endIso && startIso < a.end_at);
+  const { db } = getFirebase();
+  const existing = await dbListAppointmentsForDay(userId, String(startIso).slice(0, 10));
+  const conflict = existing.some((a) => a.start < endIso && startIso < a.end);
   if (conflict) throw new Error("Horário indisponível.");
-  const { data, error } = await sb
-    .from("appointments")
-    .insert({
-      user_id: userId,
-      service_id: serviceId,
-      client_name: clientName.trim(),
-      start_at: startIso,
-      end_at: endIso,
-      status: "agendado"
-    })
-    .select("*")
-    .single();
-  if (error) throw new Error(error.message);
-  return mapAppointment(data);
+  const payload = {
+    userId,
+    serviceId,
+    clientName: clientName.trim(),
+    start: startIso,
+    end: endIso,
+    status: "agendado",
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  const ref = await db.collection("appointments").add(payload);
+  return mapAppointment(ref.id, payload);
 }
 
 async function dbCancelAppointment(id) {
-  const sb = getSupabase();
-  const { data, error } = await sb
-    .from("appointments")
-    .update({ status: "cancelado" })
-    .eq("id", id)
-    .select("*")
-    .single();
-  if (error) throw new Error(error.message);
-  return mapAppointment(data);
+  const { db } = getFirebase();
+  await db.collection("appointments").doc(id).update({ status: "cancelado" });
+  return dbGetAppointment(id);
 }
 
 async function dbRescheduleAppointment(id, startIso, endIso) {
-  const sb = getSupabase();
+  const { db } = getFirebase();
   const current = await dbGetAppointment(id);
   if (!current) throw new Error("Agendamento não encontrado.");
-  const { data: existing, error: listError } = await sb
-    .from("appointments")
-    .select("id, start_at, end_at, status")
-    .eq("user_id", current.userId)
-    .neq("status", "cancelado");
-  if (listError) throw new Error(listError.message);
-  const conflict = (existing || []).some(
-    (a) => a.id !== id && a.start_at < endIso && startIso < a.end_at
-  );
+  const existing = await dbListAppointmentsForDay(current.userId, String(startIso).slice(0, 10));
+  const conflict = existing.some((a) => a.id !== id && a.start < endIso && startIso < a.end);
   if (conflict) throw new Error("Horário indisponível.");
-  const { data, error } = await sb
-    .from("appointments")
-    .update({ start_at: startIso, end_at: endIso, status: "agendado" })
-    .eq("id", id)
-    .select("*")
-    .single();
-  if (error) throw new Error(error.message);
-  return mapAppointment(data);
+  await db.collection("appointments").doc(id).update({
+    start: startIso,
+    end: endIso,
+    status: "agendado"
+  });
+  return dbGetAppointment(id);
 }
 
 async function dbGetService(serviceId) {
-  const sb = getSupabase();
-  const { data, error } = await sb.from("services").select("*").eq("id", serviceId).maybeSingle();
-  if (error) throw error;
-  return data ? mapService(data) : null;
+  const { db } = getFirebase();
+  const snap = await db.collection("services").doc(serviceId).get();
+  if (!snap.exists) return null;
+  return mapService(snap.id, snap.data());
 }
 
 async function dbListProfessionals() {
-  const sb = getSupabase();
-  const { data, error } = await sb.from("profiles").select("id, name, email").order("name");
-  if (error) throw error;
-  return data || [];
+  const { db } = getFirebase();
+  const snap = await db.collection("profiles").orderBy("name").get();
+  return snap.docs.map((d) => {
+    const data = d.data();
+    return { id: d.id, name: data.name || "Profissional", email: data.email || "" };
+  });
 }
 
 async function dbListAppointmentsForDay(userId, dateStr) {
-  const sb = getSupabase();
   const dayStart = `${dateStr}T00:00:00`;
   const dayEnd = `${dateStr}T23:59:59`;
-  const { data, error } = await sb
-    .from("appointments")
-    .select("*")
-    .eq("user_id", userId)
-    .neq("status", "cancelado")
-    .gte("start_at", dayStart)
-    .lte("start_at", dayEnd);
-  if (error) throw error;
-  return (data || []).map(mapAppointment);
+  const all = await dbListAppointments(userId);
+  return all.filter((a) => a.start >= dayStart && a.start <= dayEnd);
 }
