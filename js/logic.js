@@ -153,6 +153,62 @@ function clientCanCreateAppointment() {
   return true;
 }
 
+function validateServiceInput({ name, durationMinutes, price }) {
+  const errors = [];
+  const cleanName = String(name || "").trim();
+  const duration = Number(durationMinutes);
+  if (!cleanName) errors.push("Informe o nome do serviço.");
+  if (cleanName.length > 80) errors.push("Nome do serviço deve ter no máximo 80 caracteres.");
+  if (!Number.isFinite(duration) || duration < 5) errors.push("Duração mínima é 5 minutos.");
+  if (duration % 5 !== 0) errors.push("Duração deve ser múltiplo de 5 minutos.");
+  if (price !== "" && price !== null && price !== undefined) {
+    const n = Number(price);
+    if (!Number.isFinite(n) || n < 0) errors.push("Preço deve ser zero ou maior.");
+  }
+  return { ok: errors.length === 0, errors, value: { name: cleanName, durationMinutes: duration, price } };
+}
+
+function validateAvailabilityInput({ weekday, start, end }) {
+  const errors = [];
+  const day = Number(weekday);
+  if (!Number.isInteger(day) || day < 0 || day > 6) errors.push("Escolha um dia da semana válido.");
+  if (!start || !end) errors.push("Informe horário de início e fim.");
+  if (start && end && !isValidAvailabilityWindow(start, end)) {
+    errors.push("Horário inicial deve ser antes do final.");
+  }
+  return { ok: errors.length === 0, errors, value: { weekday: day, start, end } };
+}
+
+function validateBookingInput({ userId, serviceId, dateStr, slot, clientName }) {
+  const errors = [];
+  const name = String(clientName || "").trim();
+  if (!userId) errors.push("Selecione o profissional.");
+  if (!serviceId) errors.push("Selecione o serviço.");
+  if (!dateStr) errors.push("Selecione a data.");
+  if (!slot) errors.push("Selecione um horário disponível.");
+  if (!name) errors.push("Informe o seu nome.");
+  if (name && name.length < 2) errors.push("Nome deve ter pelo menos 2 caracteres.");
+  if (dateStr) {
+    const today = new Date();
+    const y = today.getFullYear();
+    const m = String(today.getMonth() + 1).padStart(2, "0");
+    const d = String(today.getDate()).padStart(2, "0");
+    const todayStr = `${y}-${m}-${d}`;
+    if (dateStr < todayStr) errors.push("Não é possível agendar em data passada.");
+  }
+  return {
+    ok: errors.length === 0,
+    errors,
+    value: { userId, serviceId, dateStr, slot, clientName: name }
+  };
+}
+
+function validateRescheduleInput({ slot }) {
+  const errors = [];
+  if (!slot) errors.push("Escolha um horário livre para remarcar.");
+  return { ok: errors.length === 0, errors, value: { slot } };
+}
+
 const api = {
   WEEKDAY_LABELS,
   timeToMinutes,
@@ -172,7 +228,11 @@ const api = {
   appointmentsFromDate,
   forgeConfigIsComplete,
   canManageAgenda,
-  clientCanCreateAppointment
+  clientCanCreateAppointment,
+  validateServiceInput,
+  validateAvailabilityInput,
+  validateBookingInput,
+  validateRescheduleInput
 };
 
 if (typeof globalThis !== "undefined") {

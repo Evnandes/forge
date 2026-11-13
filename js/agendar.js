@@ -4,9 +4,15 @@ function getQueryProId() {
 
 async function fillProfissionais() {
   const select = document.getElementById("profissional");
-  const pros = await dbListProfessionals();
+  const pros = await ForgeUI.runRequest(
+    "listarProfissionais",
+    () => dbListProfessionals(),
+    { loadingText: "Carregando profissionais...", errorMessage: "Não foi possível carregar profissionais." }
+  );
+  if (!pros) return;
   if (!pros.length) {
     select.innerHTML = "<option value=''>Nenhum profissional cadastrado</option>";
+    ForgeUI.toast("Ainda não há profissionais cadastrados.", "warning");
     return;
   }
   select.innerHTML = pros
@@ -26,9 +32,15 @@ async function fillServicos() {
     select.innerHTML = "<option value=''>—</option>";
     return;
   }
-  const services = await dbListServices(userId);
+  const services = await ForgeUI.runRequest(
+    "listarServicosAgendar",
+    () => dbListServices(userId),
+    { loadingText: "Carregando serviços...", errorMessage: "Não foi possível carregar os serviços." }
+  );
+  if (!services) return;
   if (!services.length) {
     select.innerHTML = "<option value=''>Nenhum serviço</option>";
+    ForgeUI.toast("Este profissional ainda não cadastrou serviços.", "warning");
     return;
   }
   select.innerHTML = services
@@ -45,14 +57,20 @@ async function fillSlots() {
   const dateStr = document.getElementById("data").value;
   const select = document.getElementById("horario");
   select.innerHTML = "";
-  document.getElementById("erro").textContent = "";
+  ForgeUI.setText("erro", "");
   if (!userId || !serviceId || !dateStr) {
     select.innerHTML = "<option value=''>Selecione profissional, serviço e data</option>";
     return;
   }
-  const slots = await getAvailableSlots({ userId, serviceId, dateStr });
+  const slots = await ForgeUI.runRequest(
+    "listarHorarios",
+    () => getAvailableSlots({ userId, serviceId, dateStr }),
+    { loadingText: "Buscando horários...", errorMessage: "Não foi possível buscar horários." }
+  );
+  if (!slots) return;
   if (!slots.length) {
     select.innerHTML = "<option value=''>Nenhum horário livre neste dia</option>";
+    ForgeUI.toast("Não há horário livre nesta data. Escolha outro dia.", "warning");
     return;
   }
   select.innerHTML = slots
@@ -71,33 +89,45 @@ async function bootAgendar() {
 
   document.getElementById("form").addEventListener("submit", async (event) => {
     event.preventDefault();
-    const erro = document.getElementById("erro");
-    const ok = document.getElementById("ok");
-    erro.textContent = "";
-    ok.textContent = "";
-    const userId = document.getElementById("profissional").value;
-    const serviceId = document.getElementById("servico").value;
-    const clientName = document.getElementById("cliente").value;
-    const slot = document.getElementById("horario").value;
-    if (!slot) {
-      erro.textContent = "Escolha um horário.";
+    ForgeUI.setText("erro", "");
+    ForgeUI.setText("ok", "");
+    const parsed = ForgeLogic.validateBookingInput({
+      userId: document.getElementById("profissional").value,
+      serviceId: document.getElementById("servico").value,
+      dateStr: document.getElementById("data").value,
+      slot: document.getElementById("horario").value,
+      clientName: document.getElementById("cliente").value
+    });
+    if (!parsed.ok) {
+      const msg = parsed.errors[0];
+      ForgeUI.setText("erro", msg);
+      ForgeUI.toast(msg, "warning");
       return;
     }
-    const [startIso, endIso] = slot.split("|");
-    try {
-      await dbCreateAppointment({
-        userId,
-        serviceId,
-        clientName,
-        startIso,
-        endIso
-      });
-      ok.textContent = `Agendado: ${clientName} em ${formatDateTime(startIso)}`;
-      document.getElementById("cliente").value = "";
-      await fillSlots();
-    } catch (e) {
-      erro.textContent = e.message;
-    }
+    const [startIso, endIso] = parsed.value.slot.split("|");
+    const created = await ForgeUI.runRequest(
+      "criarAgendamento",
+      () =>
+        dbCreateAppointment({
+          userId: parsed.value.userId,
+          serviceId: parsed.value.serviceId,
+          clientName: parsed.value.clientName,
+          startIso,
+          endIso
+        }),
+      {
+        loadingText: "Confirmando agendamento...",
+        successMessage: "Agendamento realizado com sucesso.",
+        errorMessage: "Não foi possível concluir o agendamento."
+      }
+    );
+    if (!created) return;
+    ForgeUI.setText(
+      "ok",
+      `Agendado: ${parsed.value.clientName} em ${formatDateTime(startIso)}`
+    );
+    document.getElementById("cliente").value = "";
+    await fillSlots();
   });
 
   await fillProfissionais();

@@ -8,13 +8,14 @@ async function bootPainel() {
   document.getElementById("linkCliente").href = `agendar.html?pro=${user.id}`;
   document.getElementById("linkCliente").textContent = `agendar.html?pro=${user.id}`;
 
-  function showErro(id, message) {
-    document.getElementById(id).textContent = message || "";
-  }
-
   async function renderServicos() {
     const list = document.getElementById("listaServicos");
-    const services = await dbListServices(user.id);
+    const services = await ForgeUI.runRequest(
+      "listarServicos",
+      () => dbListServices(user.id),
+      { loadingText: "Carregando serviços...", errorMessage: "Não foi possível carregar os serviços." }
+    );
+    if (!services) return;
     if (!services.length) {
       list.innerHTML = '<li class="list-group-item text-secondary">Nenhum serviço cadastrado.</li>';
       return;
@@ -35,11 +36,21 @@ async function bootPainel() {
 
   async function renderDisponibilidade() {
     const list = document.getElementById("listaDisponibilidade");
-    const items = (await dbListAvailability(user.id)).sort(
+    const itemsRaw = await ForgeUI.runRequest(
+      "listarDisponibilidade",
+      () => dbListAvailability(user.id),
+      {
+        loadingText: "Carregando disponibilidade...",
+        errorMessage: "Não foi possível carregar a disponibilidade."
+      }
+    );
+    if (!itemsRaw) return;
+    const items = itemsRaw.sort(
       (a, b) => a.weekday - b.weekday || a.start.localeCompare(b.start)
     );
     if (!items.length) {
-      list.innerHTML = '<li class="list-group-item text-secondary">Nenhuma disponibilidade cadastrada.</li>';
+      list.innerHTML =
+        '<li class="list-group-item text-secondary">Nenhuma disponibilidade cadastrada.</li>';
       return;
     }
     list.innerHTML = items
@@ -55,7 +66,12 @@ async function bootPainel() {
   async function renderAgenda() {
     const filtro = document.getElementById("filtroData").value;
     const list = document.getElementById("listaAgenda");
-    let appointments = await dbListAppointments(user.id);
+    let appointments = await ForgeUI.runRequest(
+      "listarAgenda",
+      () => dbListAppointments(user.id),
+      { loadingText: "Carregando agenda...", errorMessage: "Não foi possível carregar a agenda." }
+    );
+    if (!appointments) return;
     if (filtro) {
       appointments = appointments.filter((a) => datePart(a.start) === filtro);
     } else {
@@ -87,75 +103,134 @@ async function bootPainel() {
 
   document.getElementById("formServico").addEventListener("submit", async (event) => {
     event.preventDefault();
-    showErro("erroServico", "");
+    ForgeUI.setText("erroServico", "");
     const form = event.target;
     const editId = form.editId.value;
-    try {
-      if (editId) {
-        await dbUpdateService(editId, {
-          name: form.name.value,
-          durationMinutes: form.durationMinutes.value,
-          price: form.price.value
-        });
-      } else {
-        await dbCreateService({
-          userId: user.id,
-          name: form.name.value,
-          durationMinutes: form.durationMinutes.value,
-          price: form.price.value
-        });
-      }
-      form.reset();
-      form.editId.value = "";
-      document.getElementById("btnServico").textContent = "Salvar serviço";
-      await renderServicos();
-    } catch (e) {
-      showErro("erroServico", e.message);
+    const parsed = ForgeLogic.validateServiceInput({
+      name: form.name.value,
+      durationMinutes: form.durationMinutes.value,
+      price: form.price.value
+    });
+    if (!parsed.ok) {
+      const msg = parsed.errors[0];
+      ForgeUI.setText("erroServico", msg);
+      ForgeUI.toast(msg, "warning");
+      return;
     }
+    const saved = await ForgeUI.runRequest(
+      editId ? "atualizarServico" : "criarServico",
+      async () => {
+        if (editId) {
+          return dbUpdateService(editId, parsed.value);
+        }
+        return dbCreateService({
+          userId: user.id,
+          name: parsed.value.name,
+          durationMinutes: parsed.value.durationMinutes,
+          price: parsed.value.price
+        });
+      },
+      {
+        loadingText: "Salvando serviço...",
+        successMessage: editId ? "Serviço atualizado com sucesso." : "Serviço cadastrado com sucesso.",
+        errorMessage: "Não foi possível salvar o serviço."
+      }
+    );
+    if (!saved) return;
+    form.reset();
+    form.editId.value = "";
+    document.getElementById("btnServico").textContent = "Salvar";
+    await renderServicos();
   });
 
   document.getElementById("listaServicos").addEventListener("click", async (event) => {
     const del = event.target.getAttribute("data-del");
     const edit = event.target.getAttribute("data-edit");
     if (del) {
-      await dbDeleteService(del);
-      await renderServicos();
+      if (!confirm("Excluir este serviço?")) return;
+      const ok = await ForgeUI.runRequest(
+        "excluirServico",
+        async () => {
+          await dbDeleteService(del);
+          return true;
+        },
+        {
+          loadingText: "Removendo serviço...",
+          successMessage: "Serviço removido com sucesso.",
+          errorMessage: "Não foi possível remover o serviço."
+        }
+      );
+      if (ok) await renderServicos();
     }
     if (edit) {
-      const service = await dbGetService(edit);
+      const service = await ForgeUI.runRequest(
+        "carregarServico",
+        () => dbGetService(edit),
+        { loadingText: "Carregando serviço...", errorMessage: "Não foi possível abrir o serviço." }
+      );
       if (!service) return;
       const form = document.getElementById("formServico");
       form.editId.value = service.id;
       form.name.value = service.name;
       form.durationMinutes.value = service.durationMinutes;
       form.price.value = service.price === null ? "" : service.price;
-      document.getElementById("btnServico").textContent = "Atualizar serviço";
+      document.getElementById("btnServico").textContent = "Atualizar";
+      ForgeUI.toast("Serviço carregado para edição.", "info");
     }
   });
 
   document.getElementById("formDisponibilidade").addEventListener("submit", async (event) => {
     event.preventDefault();
-    showErro("erroDisponibilidade", "");
+    ForgeUI.setText("erroDisponibilidade", "");
     const form = event.target;
-    try {
-      await dbAddAvailability({
-        userId: user.id,
-        weekday: form.weekday.value,
-        start: form.start.value,
-        end: form.end.value
-      });
-      form.reset();
-      await renderDisponibilidade();
-    } catch (e) {
-      showErro("erroDisponibilidade", e.message);
+    const parsed = ForgeLogic.validateAvailabilityInput({
+      weekday: form.weekday.value,
+      start: form.start.value,
+      end: form.end.value
+    });
+    if (!parsed.ok) {
+      const msg = parsed.errors[0];
+      ForgeUI.setText("erroDisponibilidade", msg);
+      ForgeUI.toast(msg, "warning");
+      return;
     }
+    const saved = await ForgeUI.runRequest(
+      "criarDisponibilidade",
+      () =>
+        dbAddAvailability({
+          userId: user.id,
+          weekday: parsed.value.weekday,
+          start: parsed.value.start,
+          end: parsed.value.end
+        }),
+      {
+        loadingText: "Salvando horário...",
+        successMessage: "Disponibilidade cadastrada com sucesso.",
+        errorMessage: "Não foi possível salvar a disponibilidade."
+      }
+    );
+    if (!saved) return;
+    form.reset();
+    await renderDisponibilidade();
   });
 
   document.getElementById("listaDisponibilidade").addEventListener("click", async (event) => {
     const id = event.target.getAttribute("data-av-del");
     if (!id) return;
-    await dbRemoveAvailability(id);
-    await renderDisponibilidade();
+    if (!confirm("Remover esta disponibilidade?")) return;
+    const ok = await ForgeUI.runRequest(
+      "removerDisponibilidade",
+      async () => {
+        await dbRemoveAvailability(id);
+        return true;
+      },
+      {
+        loadingText: "Removendo...",
+        successMessage: "Disponibilidade removida com sucesso.",
+        errorMessage: "Não foi possível remover a disponibilidade."
+      }
+    );
+    if (ok) await renderDisponibilidade();
   });
 
   document.getElementById("filtroData").addEventListener("change", () => {
@@ -166,18 +241,32 @@ async function bootPainel() {
     const id = document.getElementById("remarcarId").value;
     const dateStr = document.getElementById("remarcarData").value;
     const select = document.getElementById("remarcarSlot");
-    const appointment = await dbGetAppointment(id);
-    showErro("erroRemarcar", "");
+    ForgeUI.setText("erroRemarcar", "");
     select.innerHTML = "";
-    if (!appointment || !dateStr) return;
-    const slots = await getAvailableSlots({
-      userId: user.id,
-      serviceId: appointment.serviceId,
-      dateStr,
-      excludeAppointmentId: appointment.id
-    });
+    if (!id || !dateStr) return;
+    const appointment = await dbGetAppointment(id);
+    if (!appointment) {
+      ForgeUI.toast("Agendamento não encontrado.", "warning");
+      return;
+    }
+    const slots = await ForgeUI.runRequest(
+      "horariosRemarcacao",
+      () =>
+        getAvailableSlots({
+          userId: user.id,
+          serviceId: appointment.serviceId,
+          dateStr,
+          excludeAppointmentId: appointment.id
+        }),
+      {
+        loadingText: "Buscando horários...",
+        errorMessage: "Não foi possível buscar horários para remarcação."
+      }
+    );
+    if (!slots) return;
     if (!slots.length) {
       select.innerHTML = "<option value=''>Nenhum horário livre</option>";
+      ForgeUI.toast("Não há horário livre nesta data para remarcar.", "warning");
       return;
     }
     select.innerHTML = slots
@@ -189,13 +278,27 @@ async function bootPainel() {
     const cancelId = event.target.getAttribute("data-cancel");
     const reschedId = event.target.getAttribute("data-resched");
     if (cancelId) {
-      if (confirm("Cancelar este agendamento?")) {
-        await dbCancelAppointment(cancelId);
-        await renderAgenda();
-      }
+      if (!confirm("Cancelar este agendamento?")) return;
+      const ok = await ForgeUI.runRequest(
+        "cancelarAgendamento",
+        async () => {
+          await dbCancelAppointment(cancelId);
+          return true;
+        },
+        {
+          loadingText: "Cancelando...",
+          successMessage: "Agendamento cancelado com sucesso.",
+          errorMessage: "Não foi possível cancelar o agendamento."
+        }
+      );
+      if (ok) await renderAgenda();
     }
     if (reschedId) {
-      const appointment = await dbGetAppointment(reschedId);
+      const appointment = await ForgeUI.runRequest(
+        "abrirRemarcacao",
+        () => dbGetAppointment(reschedId),
+        { loadingText: "Abrindo remarcação...", errorMessage: "Não foi possível abrir a remarcação." }
+      );
       if (!appointment) return;
       const box = document.getElementById("boxRemarcar");
       box.hidden = false;
@@ -213,21 +316,32 @@ async function bootPainel() {
 
   document.getElementById("formRemarcar").addEventListener("submit", async (event) => {
     event.preventDefault();
-    showErro("erroRemarcar", "");
+    ForgeUI.setText("erroRemarcar", "");
     const id = document.getElementById("remarcarId").value;
     const value = document.getElementById("remarcarSlot").value;
-    if (!value) {
-      showErro("erroRemarcar", "Escolha um horário.");
+    const parsed = ForgeLogic.validateRescheduleInput({ slot: value });
+    if (!parsed.ok) {
+      const msg = parsed.errors[0];
+      ForgeUI.setText("erroRemarcar", msg);
+      ForgeUI.toast(msg, "warning");
       return;
     }
-    const [startIso, endIso] = value.split("|");
-    try {
-      await dbRescheduleAppointment(id, startIso, endIso);
-      document.getElementById("boxRemarcar").hidden = true;
-      await renderAgenda();
-    } catch (e) {
-      showErro("erroRemarcar", e.message);
-    }
+    const [startIso, endIso] = parsed.value.slot.split("|");
+    const ok = await ForgeUI.runRequest(
+      "remarcarAgendamento",
+      async () => {
+        await dbRescheduleAppointment(id, startIso, endIso);
+        return true;
+      },
+      {
+        loadingText: "Remarcando...",
+        successMessage: "Agendamento remarcado com sucesso.",
+        errorMessage: "Não foi possível remarcar o agendamento."
+      }
+    );
+    if (!ok) return;
+    document.getElementById("boxRemarcar").hidden = true;
+    await renderAgenda();
   });
 
   document.getElementById("fecharRemarcar").addEventListener("click", () => {

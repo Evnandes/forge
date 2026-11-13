@@ -16,7 +16,7 @@ describe("arquivos criticos do app", () => {
       "painel.html",
       "agendar.html",
       "js/db.js",
-      "js/logic.js",
+      "js/logic.js",`r`n      "js/ui.js",
       "js/slots.js",
       "js/config.js",
       "firestore.rules"

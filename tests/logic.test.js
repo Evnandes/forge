@@ -18,7 +18,11 @@ const {
   appointmentsFromDate,
   forgeConfigIsComplete,
   canManageAgenda,
-  clientCanCreateAppointment
+  clientCanCreateAppointment,
+  validateServiceInput,
+  validateAvailabilityInput,
+  validateBookingInput,
+  validateRescheduleInput
 } = globalThis.ForgeLogic;
 
 describe("tempo e data", () => {
@@ -232,5 +236,40 @@ describe("config e permissoes do modelo Forge", () => {
     expect(canManageAgenda("uid-1", "uid-2")).toBe(false);
     expect(canManageAgenda(null, "uid-1")).toBe(false);
     expect(clientCanCreateAppointment()).toBe(true);
+  });
+});
+
+describe("validacoes de formulario", () => {
+  it("valida servico", () => {
+    expect(validateServiceInput({ name: "", durationMinutes: 30, price: "" }).ok).toBe(false);
+    expect(validateServiceInput({ name: "Corte", durationMinutes: 7, price: "" }).ok).toBe(false);
+    expect(validateServiceInput({ name: "Corte", durationMinutes: 30, price: -1 }).ok).toBe(false);
+    expect(validateServiceInput({ name: "Corte", durationMinutes: 30, price: 50 }).ok).toBe(true);
+  });
+
+  it("valida disponibilidade", () => {
+    expect(validateAvailabilityInput({ weekday: 1, start: "18:00", end: "09:00" }).ok).toBe(false);
+    expect(validateAvailabilityInput({ weekday: 1, start: "09:00", end: "18:00" }).ok).toBe(true);
+  });
+
+  it("valida agendamento", () => {
+    expect(
+      validateBookingInput({
+        userId: "",
+        serviceId: "s1",
+        dateStr: "2099-01-01",
+        slot: "x|y",
+        clientName: "Ana"
+      }).ok
+    ).toBe(false);
+    expect(
+      validateBookingInput({
+        userId: "u1",
+        serviceId: "s1",
+        dateStr: "2099-01-01",
+        slot: "x|y",
+        clientName: "Ana"
+      }).ok
+    ).toBe(true);
   });
 });
