@@ -339,7 +339,9 @@ Não é “instale e pronto”. É a rede de segurança contra evasão.
 
 ---
 
-## Trilha intensiva (10 dias — pacing humano)
+## Trilha intensiva (11 dias — pacing recomendado)
+
+Mesmo padrão do antigo Módulo 2 inchado: conteúdo denso de **segurança** parte em dois dias (conceitos/mão na rules vs. limites de produto e documento).
 
 | Dia | Conteúdo |
 |-----|----------|
@@ -351,10 +353,19 @@ Não é “instale e pronto”. É a rede de segurança contra evasão.
 | 6 | M3 (deploy + GitHub + URL) + check-in #2 |
 | 7 | M4.1–4.4 (erros + primeiro teste) |
 | 8 | M4.5–4.7 (UX + docs) |
-| 9 | M5 (LGPD + rules + limites) + check-in #3 |
-| 10 | M6 (método + pares + pitch) |
+| 9 | M5.1–5.4 (revisão sênior, LGPD, rules, XSS) |
+| 10 | M5.5–5.7 (transação/limites Spark, free vs pagar, SECURITY.md) + check-in #3 |
+| 11 | M6 (método + pares + pitch) |
 
-*Versão 7 dias continua possível comprimindo 4+5 e 7+8; a recomendação padrão passa a ser **10 dias** para não-devs.*
+### Variantes de compressão
+
+| Versão | Quando usar | Como comprimir |
+|--------|-------------|----------------|
+| **11 dias (padrão)** | Não-devs, piloto, Hotmart com ritmo humano | — |
+| **10 dias** | Turma avançada / pouco tempo | Juntar dias 9+10 num único dia de M5 (é mais conceitual; só manter se o piloto **não** mostrar fadiga) |
+| **7 dias** | Intensivão | Comprimir também 4+5 e 7+8; aceitar sobrecarga consciente |
+
+**Critério de piloto:** se no Dia 9 único (variante 10 dias) aparecer cansaço ou abandono, voltar ao padrão 11 dias — não “empurrar” segurança num bloco só.
 
 ---
 
