@@ -1,5 +1,25 @@
 {
   "firestore": {
     "rules": "firestore.rules"
+  },
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "node_modules/**",
+      "tests/**",
+      "supabase/**",
+      "package.json",
+      "package-lock.json",
+      "vitest.config.js",
+      "README.md",
+      "GUIA-FIREBASE.md",
+      "GUIA-PUBLICAR.md",
+      "mapa-agendamentos.md",
+      "firestore.rules",
+      ".firebaserc",
+      "firebase-debug.log"
+    ]
   }
 }
