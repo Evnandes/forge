@@ -237,25 +237,12 @@ Ler **um** caso juntos (conflito de horário) só para ver o ritual
 ### 5.1 — Olhar como “cliente chato”
 - Lista de falhas clássicas (dado público, XSS, etc.)
 
-### 5.2 — Pincelada de LGPD (aula curta, ~10 min)
-*Não é aula de advogado. É o mínimo para o dono do app não fazer besteira óbvia.*
-
-**O que o aluno precisa entender (4 frases):**
-1. **Nome do cliente na agenda = dado pessoal** — não é “só um campinho”.
-2. **Quem responde** pelo uso desse dado no atendimento é o profissional (dono da agenda), não “a IA” nem “o Firebase”.
-3. **Avisar** na tela pública o que é coletado e para quê (já existe no template em `agendar.html`).
-4. **Cancelar ≠ apagar** — cancelar só libera horário; **Excluir dados** apaga o registro de verdade (pedido de exclusão).
-
-**Política simples de guarda (falar na aula):**  
-guardar enquanto fizer sentido para o atendimento; se o cliente pedir para apagar, usar **Excluir dados** no painel.
-
-**Prompt modelo (se faltar algo no fork):**  
-*“Garanta LGPD mínima neste template: aviso de privacidade na tela de agendar, e botão no painel para o dono excluir de verdade o agendamento (não só cancelar). Me diga onde conferir no navegador.”*
-
-**Conferir:**
-- Abrir agendar → ler o aviso
-- No painel → achar **Excluir dados** → depois o nome some
-- Recado: isso não substitui advogado; é higiene de produto para micro-SaaS / Hotmart
+### 5.2 — LGPD mínima (sem juridiquês)
+- Nome = dado pessoal
+- Aviso na tela de agendar
+- **Cancelar ≠ apagar:** precisa poder **excluir** o registro (botão no painel)
+- Tempo de guarda: política simples (“enquanto necessário para o atendimento / até você pedir exclusão”)
+**Conferir:** existe aviso; existe exclusão de verdade
 
 ### 5.3 — Privacidade na prática
 **Conferir (rubrica):** aba anônima — o **nome do cliente** aparece em algum lugar público? Se sim: *“Corrija: anônimo não pode ler nome de cliente.”*
