@@ -153,12 +153,35 @@ function clientCanCreateAppointment() {
   return true;
 }
 
+function sanitizePlainText(value, maxLength) {
+  const limit = maxLength || 80;
+  return String(value || "")
+    .replace(/<[^>]*>/g, "")
+    .replace(/[<>&"'`]/g, "")
+    .trim()
+    .slice(0, limit);
+}
+
+function dayBusyId(userId, dateStr) {
+  return `${userId}_${dateStr}`;
+}
+
+function intervalsToAppointments(intervals) {
+  return (intervals || [])
+    .filter((i) => i && i.status === "agendado")
+    .map((i, index) => ({
+      id: i.appointmentId || `interval-${index}`,
+      start: i.start,
+      end: i.end,
+      status: i.status
+    }));
+}
+
 function validateServiceInput({ name, durationMinutes, price }) {
   const errors = [];
-  const cleanName = String(name || "").trim();
+  const cleanName = sanitizePlainText(name, 80);
   const duration = Number(durationMinutes);
-  if (!cleanName) errors.push("Informe o nome do serviço.");
-  if (cleanName.length > 80) errors.push("Nome do serviço deve ter no máximo 80 caracteres.");
+  if (!cleanName || cleanName.length < 2) errors.push("Informe o nome do serviço.");
   if (!Number.isFinite(duration) || duration < 5) errors.push("Duração mínima é 5 minutos.");
   if (duration % 5 !== 0) errors.push("Duração deve ser múltiplo de 5 minutos.");
   if (price !== "" && price !== null && price !== undefined) {
@@ -181,13 +204,12 @@ function validateAvailabilityInput({ weekday, start, end }) {
 
 function validateBookingInput({ userId, serviceId, dateStr, slot, clientName }) {
   const errors = [];
-  const name = String(clientName || "").trim();
+  const name = sanitizePlainText(clientName, 80);
   if (!userId) errors.push("Selecione o profissional.");
   if (!serviceId) errors.push("Selecione o serviço.");
   if (!dateStr) errors.push("Selecione a data.");
   if (!slot) errors.push("Selecione um horário disponível.");
-  if (!name) errors.push("Informe o seu nome.");
-  if (name && name.length < 2) errors.push("Nome deve ter pelo menos 2 caracteres.");
+  if (!name || name.length < 2) errors.push("Informe o seu nome (mínimo 2 caracteres).");
   if (dateStr) {
     const today = new Date();
     const y = today.getFullYear();
@@ -229,6 +251,9 @@ const api = {
   forgeConfigIsComplete,
   canManageAgenda,
   clientCanCreateAppointment,
+  sanitizePlainText,
+  dayBusyId,
+  intervalsToAppointments,
   validateServiceInput,
   validateAvailabilityInput,
   validateBookingInput,

@@ -1,24 +1,85 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    function validName(name) {
+      return name is string
+        && name.size() >= 2
+        && name.size() <= 80
+        && !name.matches('(?i).*<.*>.*');
+    }
+
     match /profiles/{userId} {
       allow read: if true;
-      allow write: if request.auth != null && request.auth.uid == userId;
+      allow create, update: if isOwner(userId)
+        && request.resource.data.keys().hasOnly(['name', 'createdAt'])
+        && validName(request.resource.data.name);
+      allow delete: if false;
     }
+
     match /services/{id} {
       allow read: if true;
-      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
-      allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if isOwner(request.resource.data.userId)
+        && request.resource.data.keys().hasAll(['userId', 'name', 'durationMinutes', 'deleted'])
+        && validName(request.resource.data.name)
+        && request.resource.data.durationMinutes is int
+        && request.resource.data.durationMinutes >= 5
+        && request.resource.data.deleted is bool;
+      allow update: if isOwner(resource.data.userId)
+        && isOwner(request.resource.data.userId);
+      allow delete: if false;
     }
+
     match /availability/{id} {
       allow read: if true;
-      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
-      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if isOwner(request.resource.data.userId)
+        && request.resource.data.keys().hasAll(['userId', 'weekday', 'start', 'end'])
+        && request.resource.data.weekday is int
+        && request.resource.data.weekday >= 0
+        && request.resource.data.weekday <= 6
+        && request.resource.data.start is string
+        && request.resource.data.end is string
+        && request.resource.data.start < request.resource.data.end;
+      allow delete: if isOwner(resource.data.userId);
+      allow update: if false;
     }
-    match /appointments/{id} {
+
+    match /dayBusy/{dayId} {
       allow read: if true;
-      allow create: if true;
-      allow update: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create, update: if request.resource.data.keys().hasAll(['userId', 'date', 'intervals'])
+        && request.resource.data.userId is string
+        && request.resource.data.date is string
+        && request.resource.data.intervals is list
+        && request.resource.data.intervals.size() <= 64
+        && dayId == request.resource.data.userId + '_' + request.resource.data.date;
+      allow delete: if false;
+    }
+
+    match /appointments/{id} {
+      allow read: if isOwner(resource.data.userId);
+      allow create: if request.resource.data.keys().hasAll([
+          'userId', 'serviceId', 'clientName', 'start', 'end', 'date', 'status', 'dayBusyId'
+        ])
+        && validName(request.resource.data.clientName)
+        && request.resource.data.status == 'agendado'
+        && request.resource.data.start is string
+        && request.resource.data.end is string
+        && request.resource.data.date is string
+        && request.resource.data.start < request.resource.data.end
+        && request.resource.data.dayBusyId
+          == request.resource.data.userId + '_' + request.resource.data.date
+        && existsAfter(/databases/$(database)/documents/dayBusy/$(request.resource.data.dayBusyId));
+      allow update: if isOwner(resource.data.userId)
+        && isOwner(request.resource.data.userId)
+        && request.resource.data.status in ['agendado', 'cancelado'];
+      allow delete: if false;
     }
   }
 }

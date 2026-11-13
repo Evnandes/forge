@@ -264,6 +264,7 @@ const ForgeUI = (function () {
     setText,
     buildErrorLog,
     showErrorLog,
+    escapeHtml,
     confirm: confirmDialog
   };
 })();

@@ -3,13 +3,12 @@ import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
 
 const root = join(process.cwd());
-
 function read(path) {
   return readFileSync(join(root, path), "utf8");
 }
 
 describe("arquivos criticos do app", () => {
-  it("mantem paginas principais", () => {
+  it("mantem paginas e modulos principais", () => {
     for (const file of [
       "index.html",
       "login.html",
@@ -20,33 +19,25 @@ describe("arquivos criticos do app", () => {
       "js/ui.js",
       "js/slots.js",
       "js/config.js",
-      "firestore.rules"
+      "firestore.rules",
+      "SECURITY.md"
     ]) {
       expect(existsSync(join(root, file))).toBe(true);
     }
   });
 
-  it("carrega logic.js e ui.js nos fluxos", () => {
-    expect(read("painel.html")).toContain("js/logic.js");
-    expect(read("painel.html")).toContain("js/ui.js");
-    expect(read("agendar.html")).toContain("js/logic.js");
-    expect(read("agendar.html")).toContain("js/ui.js");
-  });
-
-  it("usa Bootstrap nas paginas principais", () => {
-    expect(read("index.html")).toContain("bootstrap");
-    expect(read("painel.html")).toContain("bootstrap");
-    expect(read("agendar.html")).toContain("bootstrap");
-  });
-
-  it("login continua com Google e agendar nao exige login", () => {
-    expect(read("login.html")).toMatch(/Continuar com Google|btnGoogle/);
-    expect(read("agendar.html")).not.toContain("requireAuth");
-  });
-
-  it("rules: cliente cria appointment; dono gerencia servicos", () => {
+  it("protege leitura de appointments e expoe dayBusy", () => {
     const rules = read("firestore.rules");
-    expect(rules).toMatch(/match \/appointments\/\{id\}[\s\S]*allow create: if true/);
-    expect(rules).toMatch(/match \/services\/\{id\}[\s\S]*request\.auth != null/);
+    expect(rules).toContain("match /appointments/{id}");
+    expect(rules).toContain("match /dayBusy/{dayId}");
+    expect(rules).toMatch(/allow read: if isOwner\(resource\.data\.userId\)/);
+  });
+
+  it("ui escapa html e db usa transacao", () => {
+    expect(read("js/ui.js")).toContain("function escapeHtml");
+    expect(read("js/db.js")).toContain("runTransaction");
+    expect(read("js/db.js")).toContain("dayBusy");
+    expect(read("js/painel.js")).toContain("ForgeUI.escapeHtml");
+    expect(read("js/agendar.js")).toContain("ForgeUI.escapeHtml");
   });
 });

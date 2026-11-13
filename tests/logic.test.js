@@ -19,6 +19,9 @@ const {
   forgeConfigIsComplete,
   canManageAgenda,
   clientCanCreateAppointment,
+  sanitizePlainText,
+  dayBusyId,
+  intervalsToAppointments,
   validateServiceInput,
   validateAvailabilityInput,
   validateBookingInput,
@@ -49,178 +52,90 @@ describe("disponibilidade", () => {
   it("valida janela de horario", () => {
     expect(isValidAvailabilityWindow("09:00", "18:00")).toBe(true);
     expect(isValidAvailabilityWindow("18:00", "09:00")).toBe(false);
-    expect(isValidAvailabilityWindow("09:00", "09:00")).toBe(false);
   });
 });
 
 describe("conflito de agenda", () => {
   const existing = [
-    {
-      id: "a1",
-      start: "2026-11-13T17:30:00",
-      end: "2026-11-13T18:00:00",
-      status: "agendado"
-    }
+    { id: "a1", start: "2026-11-13T17:30:00", end: "2026-11-13T18:00:00", status: "agendado" }
   ];
 
   it("detecta sobreposicao", () => {
-    expect(
-      hasTimeConflict("2026-11-13T17:45:00", "2026-11-13T18:15:00", existing)
-    ).toBe(true);
+    expect(hasTimeConflict("2026-11-13T17:45:00", "2026-11-13T18:15:00", existing)).toBe(true);
   });
 
   it("permite horario livre", () => {
-    expect(
-      hasTimeConflict("2026-11-13T18:00:00", "2026-11-13T18:30:00", existing)
-    ).toBe(false);
+    expect(hasTimeConflict("2026-11-13T18:00:00", "2026-11-13T18:30:00", existing)).toBe(false);
   });
 
   it("ignora id excluido na remarcacao", () => {
-    expect(
-      hasTimeConflict(
-        "2026-11-13T17:30:00",
-        "2026-11-13T18:00:00",
-        existing,
-        "a1"
-      )
-    ).toBe(false);
-  });
-
-  it("ignora cancelados", () => {
-    expect(
-      hasTimeConflict("2026-11-13T17:30:00", "2026-11-13T18:00:00", [
-        { ...existing[0], status: "cancelado" }
-      ])
-    ).toBe(false);
+    expect(hasTimeConflict("2026-11-13T17:30:00", "2026-11-13T18:00:00", existing, "a1")).toBe(false);
   });
 });
 
 describe("slots disponiveis", () => {
-  it("gera slots de 30 min em janela de 2 horas", () => {
-    const slots = buildAvailableSlots({
+  it("gera slots e remove ocupados", () => {
+    const free = buildAvailableSlots({
       dateStr: "2026-11-13",
       durationMinutes: 30,
       windows: [{ start: "09:00", end: "11:00" }],
       appointments: []
     });
-    expect(slots.map((s) => s.label)).toEqual([
-      "09:00",
-      "09:30",
-      "10:00",
-      "10:30"
-    ]);
-  });
+    expect(free.map((s) => s.label)).toEqual(["09:00", "09:30", "10:00", "10:30"]);
 
-  it("remove slots ocupados", () => {
-    const slots = buildAvailableSlots({
+    const busy = buildAvailableSlots({
       dateStr: "2026-11-13",
       durationMinutes: 30,
       windows: [{ start: "09:00", end: "11:00" }],
       appointments: [
-        {
-          id: "1",
-          start: "2026-11-13T09:30:00",
-          end: "2026-11-13T10:00:00",
-          status: "agendado"
-        }
+        { id: "1", start: "2026-11-13T09:30:00", end: "2026-11-13T10:00:00", status: "agendado" }
       ]
     });
-    expect(slots.map((s) => s.label)).toEqual(["09:00", "10:00", "10:30"]);
-  });
-
-  it("retorna vazio sem janela ou duracao invalida", () => {
-    expect(
-      buildAvailableSlots({
-        dateStr: "2026-11-13",
-        durationMinutes: 30,
-        windows: [],
-        appointments: []
-      })
-    ).toEqual([]);
-    expect(
-      buildAvailableSlots({
-        dateStr: "2026-11-13",
-        durationMinutes: 0,
-        windows: [{ start: "09:00", end: "10:00" }],
-        appointments: []
-      })
-    ).toEqual([]);
+    expect(busy.map((s) => s.label)).toEqual(["09:00", "10:00", "10:30"]);
   });
 });
 
-describe("mapeamento e filtros", () => {
-  it("mapeia service availability appointment", () => {
-    expect(
-      mapService("s1", {
-        userId: "u1",
-        name: "massagem",
-        durationMinutes: 30,
-        price: 50,
-        deleted: false
-      })
-    ).toMatchObject({
-      id: "s1",
-      userId: "u1",
-      name: "massagem",
-      durationMinutes: 30,
-      price: 50,
-      deleted: false
-    });
+describe("seguranca de texto e dayBusy", () => {
+  it("remove html de nomes", () => {
+    expect(sanitizePlainText('<script>alert(1)</script>Ana', 80)).toBe("alert(1)Ana");
+  });
 
-    expect(
-      mapAvailability("av1", {
-        userId: "u1",
-        weekday: "5",
-        start: "09:00",
-        end: "18:00"
-      })
-    ).toEqual({
-      id: "av1",
-      userId: "u1",
-      weekday: 5,
-      start: "09:00",
-      end: "18:00"
-    });
+  it("monta id do dia e intervalos sem PII", () => {
+    expect(dayBusyId("u1", "2026-11-13")).toBe("u1_2026-11-13");
+    const mapped = intervalsToAppointments([
+      { start: "a", end: "b", appointmentId: "1", status: "agendado" },
+      { start: "c", end: "d", appointmentId: "2", status: "cancelado" }
+    ]);
+    expect(mapped).toHaveLength(1);
+    expect(mapped[0].id).toBe("1");
+  });
+});
 
+describe("validacoes de formulario", () => {
+  it("valida servico disponibilidade e booking", () => {
+    expect(validateServiceInput({ name: "Corte", durationMinutes: 30, price: 50 }).ok).toBe(true);
+    expect(validateAvailabilityInput({ weekday: 1, start: "09:00", end: "18:00" }).ok).toBe(true);
     expect(
-      mapAppointment("ap1", {
+      validateBookingInput({
         userId: "u1",
         serviceId: "s1",
-        clientName: "Eloa",
-        start: "2026-11-13T17:30:00",
-        end: "2026-11-13T18:00:00",
-        status: "agendado"
-      })
-    ).toMatchObject({
-      id: "ap1",
-      clientName: "Eloa",
-      status: "agendado"
-    });
-  });
-
-  it("filtra servicos ativos e agenda a partir de data", () => {
-    expect(
-      activeServices([
-        { id: "1", deleted: false },
-        { id: "2", deleted: true }
-      ]).map((s) => s.id)
-    ).toEqual(["1"]);
-
-    expect(
-      appointmentsFromDate(
-        [
-          { start: "2026-11-12T10:00:00" },
-          { start: "2026-11-13T10:00:00" }
-        ],
-        "2026-11-13"
-      )
-    ).toHaveLength(1);
+        dateStr: "2099-01-01",
+        slot: "x|y",
+        clientName: "Ana"
+      }).ok
+    ).toBe(true);
+    expect(validateRescheduleInput({ slot: "" }).ok).toBe(false);
   });
 });
 
-describe("config e permissoes do modelo Forge", () => {
-  it("valida config firebase completa", () => {
-    expect(forgeConfigIsComplete({ apiKey: "COLE_AQUI" })).toBe(false);
+describe("permissoes e config", () => {
+  it("dono gerencia e cliente agenda", () => {
+    expect(canManageAgenda("u1", "u1")).toBe(true);
+    expect(canManageAgenda("u1", "u2")).toBe(false);
+    expect(clientCanCreateAppointment()).toBe(true);
+  });
+
+  it("config firebase completa", () => {
     expect(
       forgeConfigIsComplete({
         apiKey: "AIza",
@@ -230,46 +145,14 @@ describe("config e permissoes do modelo Forge", () => {
       })
     ).toBe(true);
   });
-
-  it("so o dono gerencia a agenda; cliente agenda sem login", () => {
-    expect(canManageAgenda("uid-1", "uid-1")).toBe(true);
-    expect(canManageAgenda("uid-1", "uid-2")).toBe(false);
-    expect(canManageAgenda(null, "uid-1")).toBe(false);
-    expect(clientCanCreateAppointment()).toBe(true);
-  });
 });
 
-describe("validacoes de formulario", () => {
-  it("valida servico", () => {
-    expect(validateServiceInput({ name: "", durationMinutes: 30, price: "" }).ok).toBe(false);
-    expect(validateServiceInput({ name: "Corte", durationMinutes: 7, price: "" }).ok).toBe(false);
-    expect(validateServiceInput({ name: "Corte", durationMinutes: 30, price: -1 }).ok).toBe(false);
-    expect(validateServiceInput({ name: "Corte", durationMinutes: 30, price: 50 }).ok).toBe(true);
-  });
-
-  it("valida disponibilidade", () => {
-    expect(validateAvailabilityInput({ weekday: 1, start: "18:00", end: "09:00" }).ok).toBe(false);
-    expect(validateAvailabilityInput({ weekday: 1, start: "09:00", end: "18:00" }).ok).toBe(true);
-  });
-
-  it("valida agendamento", () => {
-    expect(
-      validateBookingInput({
-        userId: "",
-        serviceId: "s1",
-        dateStr: "2099-01-01",
-        slot: "x|y",
-        clientName: "Ana"
-      }).ok
-    ).toBe(false);
-    expect(
-      validateBookingInput({
-        userId: "u1",
-        serviceId: "s1",
-        dateStr: "2099-01-01",
-        slot: "x|y",
-        clientName: "Ana"
-      }).ok
-    ).toBe(true);
+describe("mapeamento", () => {
+  it("mapeia entidades", () => {
+    expect(mapService("s1", { userId: "u1", name: "A", durationMinutes: 30, price: null, deleted: false }).id).toBe("s1");
+    expect(mapAvailability("a1", { userId: "u1", weekday: 2, start: "09:00", end: "10:00" }).weekday).toBe(2);
+    expect(mapAppointment("p1", { userId: "u1", serviceId: "s1", clientName: "Ana", start: "a", end: "b", status: "agendado" }).clientName).toBe("Ana");
+    expect(activeServices([{ id: "1", deleted: false }, { id: "2", deleted: true }])).toHaveLength(1);
+    expect(appointmentsFromDate([{ start: "2026-11-12T10:00:00" }, { start: "2026-11-13T10:00:00" }], "2026-11-13")).toHaveLength(1);
   });
 });

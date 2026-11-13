@@ -24,7 +24,7 @@ async function bootPainel() {
       .map((s) => {
         const preco = s.price === null ? "—" : `R$ ${s.price.toFixed(2)}`;
         return `<li class="list-group-item d-flex flex-wrap justify-content-between align-items-center gap-2">
-          <span><strong>${s.name}</strong> — ${s.durationMinutes} min — ${preco}</span>
+          <span><strong>${ForgeUI.escapeHtml(s.name)}</strong> — ${s.durationMinutes} min — ${preco}</span>
           <span class="btn-group btn-group-sm">
             <button type="button" class="btn btn-outline-primary" data-edit="${s.id}">Editar</button>
             <button type="button" class="btn btn-outline-danger" data-del="${s.id}">Excluir</button>
@@ -91,7 +91,7 @@ async function bootPainel() {
       const service = await dbGetService(a.serviceId);
       const nomeServico = service ? service.name : "(serviço removido)";
       html.push(`<li class="list-group-item d-flex flex-wrap justify-content-between align-items-center gap-2">
-        <span><strong>${globalThis.formatDateTime(a.start)}</strong> — ${nomeServico} — ${a.clientName}</span>
+        <span><strong>${ForgeUI.escapeHtml(globalThis.formatDateTime(a.start))}</strong> — ${ForgeUI.escapeHtml(nomeServico)} — ${ForgeUI.escapeHtml(a.clientName)}</span>
         <span class="btn-group btn-group-sm">
           <button type="button" class="btn btn-outline-danger" data-cancel="${a.id}">Cancelar</button>
           <button type="button" class="btn btn-outline-primary" data-resched="${a.id}">Remarcar</button>
@@ -363,6 +363,14 @@ async function bootPainel() {
     document.getElementById("boxRemarcar").hidden = true;
   });
 
+  await ForgeUI.runRequest(
+    "syncDayBusy",
+    () => dbSyncDayBusyFromAppointments(user.id),
+    {
+      loadingText: "Sincronizando agenda...",
+      errorMessage: "Não foi possível sincronizar a agenda pública."
+    }
+  );
   await renderServicos();
   await renderDisponibilidade();
   await renderAgenda();

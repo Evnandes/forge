@@ -16,7 +16,7 @@ async function fillProfissionais() {
     return;
   }
   select.innerHTML = pros
-    .map((p) => `<option value="${p.id}">${p.name} (${p.email})</option>`)
+    .map((p) => `<option value="${p.id}">${ForgeUI.escapeHtml(p.name)}</option>`)
     .join("");
   const fromQuery = getQueryProId();
   if (fromQuery && pros.some((p) => p.id === fromQuery)) {
@@ -46,7 +46,7 @@ async function fillServicos() {
   select.innerHTML = services
     .map((s) => {
       const preco = s.price === null ? "" : ` — R$ ${s.price.toFixed(2)}`;
-      return `<option value="${s.id}">${s.name} (${s.durationMinutes} min)${preco}</option>`;
+      return `<option value="${s.id}">${ForgeUI.escapeHtml(s.name)} (${s.durationMinutes} min)${preco}</option>`;
     })
     .join("");
 }
