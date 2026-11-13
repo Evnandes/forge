@@ -60,3 +60,12 @@ Configure com o arquivo `GUIA-FIREBASE.md`.
 ## Repositório
 
 https://github.com/Evnandes/forge
+
+## Testes
+
+`ash
+npm install
+npm test
+`
+
+Cobre a lógica de horários, conflitos, mapeamento e o modelo de permissão (profissional com login / cliente sem login).

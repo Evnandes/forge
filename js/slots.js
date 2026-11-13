@@ -1,55 +1,13 @@
-const WEEKDAY_LABELS = [
-  "Domingo",
-  "Segunda",
-  "Terça",
-  "Quarta",
-  "Quinta",
-  "Sexta",
-  "Sábado"
-];
-
-function timeToMinutes(hhmm) {
-  const [h, m] = hhmm.split(":").map(Number);
-  return h * 60 + m;
-}
-
-function minutesToTime(total) {
-  const h = String(Math.floor(total / 60)).padStart(2, "0");
-  const m = String(total % 60).padStart(2, "0");
-  return `${h}:${m}`;
-}
-
-function datePart(iso) {
-  return String(iso).slice(0, 10);
-}
-
-function toLocalIso(dateStr, hhmm) {
-  return `${dateStr}T${hhmm}:00`;
-}
-
-function addMinutesToIso(startIso, minutes) {
-  const date = new Date(startIso);
-  date.setMinutes(date.getMinutes() + minutes);
-  const y = date.getFullYear();
-  const mo = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  const h = String(date.getHours()).padStart(2, "0");
-  const mi = String(date.getMinutes()).padStart(2, "0");
-  const s = String(date.getSeconds()).padStart(2, "0");
-  return `${y}-${mo}-${d}T${h}:${mi}:${s}`;
-}
-
-function formatDateTime(iso) {
-  const date = new Date(iso);
-  return date.toLocaleString("pt-BR", {
-    weekday: "short",
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit"
-  });
-}
+const {
+  WEEKDAY_LABELS,
+  timeToMinutes,
+  minutesToTime,
+  datePart,
+  toLocalIso,
+  addMinutesToIso,
+  formatDateTime,
+  buildAvailableSlots
+} = globalThis.ForgeLogic;
 
 async function getAvailableSlots({ userId, serviceId, dateStr, excludeAppointmentId }) {
   const service = await dbGetService(serviceId);
@@ -60,26 +18,12 @@ async function getAvailableSlots({ userId, serviceId, dateStr, excludeAppointmen
   const windows = (await dbListAvailability(userId)).filter((a) => a.weekday === weekday);
   if (!windows.length) return [];
 
-  const duration = service.durationMinutes;
   let appointments = await dbListAppointmentsForDay(userId, dateStr);
-  if (excludeAppointmentId) {
-    appointments = appointments.filter((a) => a.id !== excludeAppointmentId);
-  }
-
-  const slots = [];
-  for (const window of windows) {
-    let cursor = timeToMinutes(window.start);
-    const end = timeToMinutes(window.end);
-    while (cursor + duration <= end) {
-      const startHm = minutesToTime(cursor);
-      const startIso = toLocalIso(dateStr, startHm);
-      const endIso = addMinutesToIso(startIso, duration);
-      const overlaps = appointments.some((a) => a.start < endIso && startIso < a.end);
-      if (!overlaps) {
-        slots.push({ startIso, endIso, label: startHm });
-      }
-      cursor += duration;
-    }
-  }
-  return slots;
+  return buildAvailableSlots({
+    dateStr,
+    durationMinutes: service.durationMinutes,
+    windows,
+    appointments,
+    excludeAppointmentId
+  });
 }

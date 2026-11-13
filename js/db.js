@@ -15,36 +15,15 @@ function getFirebase() {
 }
 
 function mapService(id, data) {
-  return {
-    id,
-    userId: data.userId,
-    name: data.name,
-    durationMinutes: data.durationMinutes,
-    price: data.price === undefined || data.price === null ? null : Number(data.price),
-    deleted: !!data.deleted
-  };
+  return globalThis.ForgeLogic.mapService(id, data);
 }
 
 function mapAvailability(id, data) {
-  return {
-    id,
-    userId: data.userId,
-    weekday: data.weekday,
-    start: data.start,
-    end: data.end
-  };
+  return globalThis.ForgeLogic.mapAvailability(id, data);
 }
 
 function mapAppointment(id, data) {
-  return {
-    id,
-    userId: data.userId,
-    serviceId: data.serviceId,
-    clientName: data.clientName,
-    start: data.start,
-    end: data.end,
-    status: data.status
-  };
+  return globalThis.ForgeLogic.mapAppointment(id, data);
 }
 
 function waitForAuth() {
@@ -149,7 +128,7 @@ async function dbListAvailability(userId) {
 }
 
 async function dbAddAvailability({ userId, weekday, start, end }) {
-  if (start >= end) throw new Error("Horário inicial deve ser antes do final.");
+  if (!globalThis.ForgeLogic.isValidAvailabilityWindow(start, end)) throw new Error("Horário inicial deve ser antes do final.");
   const { db } = getFirebase();
   const payload = {
     userId,
@@ -185,8 +164,7 @@ async function dbGetAppointment(id) {
 async function dbCreateAppointment({ userId, serviceId, clientName, startIso, endIso }) {
   const { db } = getFirebase();
   const existing = await dbListAppointmentsForDay(userId, String(startIso).slice(0, 10));
-  const conflict = existing.some((a) => a.start < endIso && startIso < a.end);
-  if (conflict) throw new Error("Horário indisponível.");
+  if (globalThis.ForgeLogic.hasTimeConflict(startIso, endIso, existing)) throw new Error("Horário indisponível.");
   const payload = {
     userId,
     serviceId,
@@ -211,8 +189,9 @@ async function dbRescheduleAppointment(id, startIso, endIso) {
   const current = await dbGetAppointment(id);
   if (!current) throw new Error("Agendamento não encontrado.");
   const existing = await dbListAppointmentsForDay(current.userId, String(startIso).slice(0, 10));
-  const conflict = existing.some((a) => a.id !== id && a.start < endIso && startIso < a.end);
-  if (conflict) throw new Error("Horário indisponível.");
+  if (globalThis.ForgeLogic.hasTimeConflict(startIso, endIso, existing, id)) {
+    throw new Error("Horário indisponível.");
+  }
   await db.collection("appointments").doc(id).update({
     start: startIso,
     end: endIso,
