@@ -30,6 +30,12 @@ describe("arquivos criticos do app", () => {
     expect(read("agendar.html")).toContain("js/logic.js");
   });
 
+  it("usa Bootstrap nas paginas principais", () => {
+    expect(read("index.html")).toContain("bootstrap");
+    expect(read("painel.html")).toContain("bootstrap");
+    expect(read("agendar.html")).toContain("bootstrap");
+  });
+
   it("login continua com Google e agendar nao exige login", () => {
     expect(read("login.html")).toMatch(/Continuar com Google|btnGoogle/);
     expect(read("agendar.html")).not.toContain("requireAuth");

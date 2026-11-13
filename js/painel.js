@@ -16,16 +16,18 @@ async function bootPainel() {
     const list = document.getElementById("listaServicos");
     const services = await dbListServices(user.id);
     if (!services.length) {
-      list.innerHTML = "<li>Nenhum serviço cadastrado.</li>";
+      list.innerHTML = '<li class="list-group-item text-secondary">Nenhum serviço cadastrado.</li>';
       return;
     }
     list.innerHTML = services
       .map((s) => {
         const preco = s.price === null ? "—" : `R$ ${s.price.toFixed(2)}`;
-        return `<li>
-          <strong>${s.name}</strong> — ${s.durationMinutes} min — ${preco}
-          <button type="button" data-edit="${s.id}">Editar</button>
-          <button type="button" data-del="${s.id}">Excluir</button>
+        return `<li class="list-group-item d-flex flex-wrap justify-content-between align-items-center gap-2">
+          <span><strong>${s.name}</strong> — ${s.durationMinutes} min — ${preco}</span>
+          <span class="btn-group btn-group-sm">
+            <button type="button" class="btn btn-outline-primary" data-edit="${s.id}">Editar</button>
+            <button type="button" class="btn btn-outline-danger" data-del="${s.id}">Excluir</button>
+          </span>
         </li>`;
       })
       .join("");
@@ -37,14 +39,14 @@ async function bootPainel() {
       (a, b) => a.weekday - b.weekday || a.start.localeCompare(b.start)
     );
     if (!items.length) {
-      list.innerHTML = "<li>Nenhuma disponibilidade cadastrada.</li>";
+      list.innerHTML = '<li class="list-group-item text-secondary">Nenhuma disponibilidade cadastrada.</li>';
       return;
     }
     list.innerHTML = items
       .map(
-        (a) => `<li>
-          ${WEEKDAY_LABELS[a.weekday]} — ${a.start} às ${a.end}
-          <button type="button" data-av-del="${a.id}">Remover</button>
+        (a) => `<li class="list-group-item d-flex flex-wrap justify-content-between align-items-center gap-2">
+          <span>${WEEKDAY_LABELS[a.weekday]} — ${a.start} às ${a.end}</span>
+          <button type="button" class="btn btn-outline-danger btn-sm" data-av-del="${a.id}">Remover</button>
         </li>`
       )
       .join("");
@@ -65,17 +67,19 @@ async function bootPainel() {
       appointments = appointments.filter((a) => datePart(a.start) >= hojeStr);
     }
     if (!appointments.length) {
-      list.innerHTML = "<li>Nenhum agendamento.</li>";
+      list.innerHTML = '<li class="list-group-item text-secondary">Nenhum agendamento.</li>';
       return;
     }
     const html = [];
     for (const a of appointments) {
       const service = await dbGetService(a.serviceId);
       const nomeServico = service ? service.name : "(serviço removido)";
-      html.push(`<li>
-        <strong>${formatDateTime(a.start)}</strong> — ${nomeServico} — ${a.clientName}
-        <button type="button" data-cancel="${a.id}">Cancelar</button>
-        <button type="button" data-resched="${a.id}">Remarcar</button>
+      html.push(`<li class="list-group-item d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <span><strong>${formatDateTime(a.start)}</strong> — ${nomeServico} — ${a.clientName}</span>
+        <span class="btn-group btn-group-sm">
+          <button type="button" class="btn btn-outline-danger" data-cancel="${a.id}">Cancelar</button>
+          <button type="button" class="btn btn-outline-primary" data-resched="${a.id}">Remarcar</button>
+        </span>
       </li>`);
     }
     list.innerHTML = html.join("");

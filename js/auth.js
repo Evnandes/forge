@@ -32,7 +32,7 @@ function ensureConfigOrWarn() {
   if (!window.forgeConfigOk()) {
     document.body.insertAdjacentHTML(
       "afterbegin",
-      "<p style='color:red'>Falta configurar o Firebase em <code>js/config.js</code>. Siga o arquivo <code>GUIA-FIREBASE.md</code>.</p>"
+      "<div class="alert alert-danger m-3">Falta configurar o Firebase em <code>js/config.js</code>. Siga o arquivo <code>GUIA-FIREBASE.md</code>.</div>"
     );
     return false;
   }

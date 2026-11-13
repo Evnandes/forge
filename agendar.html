@@ -3,41 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <title>Agendar — Forge Agenda</title>
 </head>
 <body>
-  <p><a href="index.html">Início</a></p>
-  <h1>Agendar horário</h1>
-  <form id="form">
-    <p>
-      <label>Profissional<br>
-        <select id="profissional" required></select>
-      </label>
-    </p>
-    <p>
-      <label>Serviço<br>
-        <select id="servico" required></select>
-      </label>
-    </p>
-    <p>
-      <label>Data<br>
-        <input type="date" id="data" required>
-      </label>
-    </p>
-    <p>
-      <label>Horário<br>
-        <select id="horario" required></select>
-      </label>
-    </p>
-    <p>
-      <label>Seu nome<br>
-        <input id="cliente" required>
-      </label>
-    </p>
-    <button type="submit">Confirmar agendamento</button>
-  </form>
-  <p id="erro" style="color: red;"></p>
-  <p id="ok" style="color: green;"></p>
+  <main class="container py-4" style="max-width: 560px;">
+    <p><a href="index.html">Início</a></p>
+    <h1 class="h3 mb-3">Agendar horário</h1>
+    <form id="form">
+      <div class="mb-3">
+        <label class="form-label" for="profissional">Profissional</label>
+        <select class="form-select" id="profissional" required></select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="servico">Serviço</label>
+        <select class="form-select" id="servico" required></select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="data">Data</label>
+        <input class="form-control" type="date" id="data" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="horario">Horário</label>
+        <select class="form-select" id="horario" required></select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="cliente">Seu nome</label>
+        <input class="form-control" id="cliente" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Confirmar agendamento</button>
+    </form>
+    <p id="erro" class="text-danger mt-3 mb-0"></p>
+    <p id="ok" class="text-success mt-2 mb-0"></p>
+  </main>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
