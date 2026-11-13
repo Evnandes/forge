@@ -1,10 +1,10 @@
 window.FORGE_CONFIG = {
-  apiKey: "COLE_AQUI",
-  authDomain: "COLE_AQUI",
-  projectId: "COLE_AQUI",
-  storageBucket: "COLE_AQUI",
-  messagingSenderId: "COLE_AQUI",
-  appId: "COLE_AQUI"
+  apiKey: "AIzaSyAMxiog3sTGs1QCzQt4fFi1ufP-VhyjdFw",
+  authDomain: "forge-agenda-evn.firebaseapp.com",
+  projectId: "forge-agenda-evn",
+  storageBucket: "forge-agenda-evn.firebasestorage.app",
+  messagingSenderId: "147866049337",
+  appId: "1:147866049337:web:30ef0181a4201d3a38a6e8"
 };
 
 window.forgeConfigOk = function forgeConfigOk() {
