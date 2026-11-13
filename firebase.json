@@ -18,6 +18,14 @@
       "firestore.rules",
       ".firebaserc",
       "firebase-debug.log"
+    ],
+    "headers": [
+      {
+        "source": "**/*.@(js|html)",
+        "headers": [
+          { "key": "Cache-Control", "value": "no-cache" }
+        ]
+      }
     ]
   }
 }
