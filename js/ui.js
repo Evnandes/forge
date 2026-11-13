@@ -53,6 +53,87 @@ const ForgeUI = (function () {
     document.getElementById("forge-close-error").addEventListener("click", () => {
       logBox.classList.add("d-none");
     });
+
+    const confirmModal = document.createElement("div");
+    confirmModal.id = "forge-confirm-modal";
+    confirmModal.className = "modal fade";
+    confirmModal.tabIndex = -1;
+    confirmModal.setAttribute("aria-hidden", "true");
+    confirmModal.innerHTML =
+      '<div class="modal-dialog modal-dialog-centered">' +
+      '<div class="modal-content">' +
+      '<div class="modal-header">' +
+      '<h5 class="modal-title" id="forge-confirm-title">Confirmação</h5>' +
+      '<button type="button" class="btn-close" id="forge-confirm-x" aria-label="Fechar"></button>' +
+      "</div>" +
+      '<div class="modal-body" id="forge-confirm-message"></div>' +
+      '<div class="modal-footer">' +
+      '<button type="button" class="btn btn-outline-secondary" id="forge-confirm-cancel">Cancelar</button>' +
+      '<button type="button" class="btn btn-danger" id="forge-confirm-ok">Confirmar</button>' +
+      "</div></div></div>";
+    document.body.appendChild(confirmModal);
+
+    const backdrop = document.createElement("div");
+    backdrop.id = "forge-confirm-backdrop";
+    backdrop.className = "modal-backdrop fade d-none";
+    document.body.appendChild(backdrop);
+  }
+
+  function openConfirmModal() {
+    const modal = document.getElementById("forge-confirm-modal");
+    const backdrop = document.getElementById("forge-confirm-backdrop");
+    modal.classList.add("show");
+    modal.style.display = "block";
+    modal.setAttribute("aria-hidden", "false");
+    backdrop.classList.remove("d-none");
+    backdrop.classList.add("show");
+    document.body.classList.add("modal-open");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeConfirmModal() {
+    const modal = document.getElementById("forge-confirm-modal");
+    const backdrop = document.getElementById("forge-confirm-backdrop");
+    modal.classList.remove("show");
+    modal.style.display = "none";
+    modal.setAttribute("aria-hidden", "true");
+    backdrop.classList.remove("show");
+    backdrop.classList.add("d-none");
+    document.body.classList.remove("modal-open");
+    document.body.style.overflow = "";
+  }
+
+  function confirmDialog(options) {
+    ensureShell();
+    const opts = options || {};
+    return new Promise((resolve) => {
+      const title = document.getElementById("forge-confirm-title");
+      const message = document.getElementById("forge-confirm-message");
+      const okBtn = document.getElementById("forge-confirm-ok");
+      const cancelBtn = document.getElementById("forge-confirm-cancel");
+      const closeBtn = document.getElementById("forge-confirm-x");
+
+      title.textContent = opts.title || "Confirmação";
+      message.textContent = opts.message || "Deseja continuar?";
+      okBtn.textContent = opts.confirmText || "Confirmar";
+      cancelBtn.textContent = opts.cancelText || "Cancelar";
+      okBtn.className = opts.danger === false ? "btn btn-primary" : "btn btn-danger";
+
+      const finish = (value) => {
+        okBtn.removeEventListener("click", onOk);
+        cancelBtn.removeEventListener("click", onCancel);
+        closeBtn.removeEventListener("click", onCancel);
+        closeConfirmModal();
+        resolve(value);
+      };
+      const onOk = () => finish(true);
+      const onCancel = () => finish(false);
+
+      okBtn.addEventListener("click", onOk);
+      cancelBtn.addEventListener("click", onCancel);
+      closeBtn.addEventListener("click", onCancel);
+      openConfirmModal();
+    });
   }
 
   function toast(message, type) {
@@ -182,7 +263,8 @@ const ForgeUI = (function () {
     runRequest,
     setText,
     buildErrorLog,
-    showErrorLog
+    showErrorLog,
+    confirm: confirmDialog
   };
 })();
 

@@ -147,7 +147,12 @@ async function bootPainel() {
     const del = event.target.getAttribute("data-del");
     const edit = event.target.getAttribute("data-edit");
     if (del) {
-      if (!confirm("Excluir este serviço?")) return;
+      const confirmed = await ForgeUI.confirm({
+        title: "Excluir serviço",
+        message: "Tem certeza que deseja excluir este serviço?",
+        confirmText: "Excluir"
+      });
+      if (!confirmed) return;
       const ok = await ForgeUI.runRequest(
         "excluirServico",
         async () => {
@@ -217,7 +222,12 @@ async function bootPainel() {
   document.getElementById("listaDisponibilidade").addEventListener("click", async (event) => {
     const id = event.target.getAttribute("data-av-del");
     if (!id) return;
-    if (!confirm("Remover esta disponibilidade?")) return;
+    const confirmed = await ForgeUI.confirm({
+      title: "Remover disponibilidade",
+      message: "Tem certeza que deseja remover este horário?",
+      confirmText: "Remover"
+    });
+    if (!confirmed) return;
     const ok = await ForgeUI.runRequest(
       "removerDisponibilidade",
       async () => {
@@ -278,7 +288,12 @@ async function bootPainel() {
     const cancelId = event.target.getAttribute("data-cancel");
     const reschedId = event.target.getAttribute("data-resched");
     if (cancelId) {
-      if (!confirm("Cancelar este agendamento?")) return;
+      const confirmed = await ForgeUI.confirm({
+        title: "Cancelar agendamento",
+        message: "Tem certeza que deseja cancelar este agendamento?",
+        confirmText: "Cancelar agendamento"
+      });
+      if (!confirmed) return;
       const ok = await ForgeUI.runRequest(
         "cancelarAgendamento",
         async () => {
