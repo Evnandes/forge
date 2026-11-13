@@ -64,7 +64,7 @@ async function fillSlots() {
   }
   const slots = await ForgeUI.runRequest(
     "listarHorarios",
-    () => getAvailableSlots({ userId, serviceId, dateStr }),
+    () => globalThis.getAvailableSlots({ userId, serviceId, dateStr }),
     { loadingText: "Buscando horários...", errorMessage: "Não foi possível buscar horários." }
   );
   if (!slots) return;
@@ -124,7 +124,7 @@ async function bootAgendar() {
     if (!created) return;
     ForgeUI.setText(
       "ok",
-      `Agendado: ${parsed.value.clientName} em ${formatDateTime(startIso)}`
+      `Agendado: ${parsed.value.clientName} em ${globalThis.formatDateTime(startIso)}`
     );
     document.getElementById("cliente").value = "";
     await fillSlots();

@@ -56,7 +56,7 @@ async function bootPainel() {
     list.innerHTML = items
       .map(
         (a) => `<li class="list-group-item d-flex flex-wrap justify-content-between align-items-center gap-2">
-          <span>${WEEKDAY_LABELS[a.weekday]} — ${a.start} às ${a.end}</span>
+          <span>${globalThis.WEEKDAY_LABELS[a.weekday]} — ${a.start} às ${a.end}</span>
           <button type="button" class="btn btn-outline-danger btn-sm" data-av-del="${a.id}">Remover</button>
         </li>`
       )
@@ -73,14 +73,14 @@ async function bootPainel() {
     );
     if (!appointments) return;
     if (filtro) {
-      appointments = appointments.filter((a) => datePart(a.start) === filtro);
+      appointments = appointments.filter((a) => globalThis.datePart(a.start) === filtro);
     } else {
       const hoje = new Date();
       const y = hoje.getFullYear();
       const m = String(hoje.getMonth() + 1).padStart(2, "0");
       const d = String(hoje.getDate()).padStart(2, "0");
       const hojeStr = `${y}-${m}-${d}`;
-      appointments = appointments.filter((a) => datePart(a.start) >= hojeStr);
+      appointments = appointments.filter((a) => globalThis.datePart(a.start) >= hojeStr);
     }
     if (!appointments.length) {
       list.innerHTML = '<li class="list-group-item text-secondary">Nenhum agendamento.</li>';
@@ -91,7 +91,7 @@ async function bootPainel() {
       const service = await dbGetService(a.serviceId);
       const nomeServico = service ? service.name : "(serviço removido)";
       html.push(`<li class="list-group-item d-flex flex-wrap justify-content-between align-items-center gap-2">
-        <span><strong>${formatDateTime(a.start)}</strong> — ${nomeServico} — ${a.clientName}</span>
+        <span><strong>${globalThis.formatDateTime(a.start)}</strong> — ${nomeServico} — ${a.clientName}</span>
         <span class="btn-group btn-group-sm">
           <button type="button" class="btn btn-outline-danger" data-cancel="${a.id}">Cancelar</button>
           <button type="button" class="btn btn-outline-primary" data-resched="${a.id}">Remarcar</button>
@@ -262,7 +262,7 @@ async function bootPainel() {
     const slots = await ForgeUI.runRequest(
       "horariosRemarcacao",
       () =>
-        getAvailableSlots({
+        globalThis.getAvailableSlots({
           userId: user.id,
           serviceId: appointment.serviceId,
           dateStr,
@@ -319,8 +319,8 @@ async function bootPainel() {
       box.hidden = false;
       document.getElementById("remarcarId").value = appointment.id;
       document.getElementById("remarcarInfo").textContent =
-        `${appointment.clientName} — ${formatDateTime(appointment.start)}`;
-      document.getElementById("remarcarData").value = datePart(appointment.start);
+        `${appointment.clientName} — ${globalThis.formatDateTime(appointment.start)}`;
+      document.getElementById("remarcarData").value = globalThis.datePart(appointment.start);
       await fillRemarcarSlots();
     }
   });

@@ -1,29 +1,32 @@
-const {
-  WEEKDAY_LABELS,
-  timeToMinutes,
-  minutesToTime,
-  datePart,
-  toLocalIso,
-  addMinutesToIso,
-  formatDateTime,
-  buildAvailableSlots
-} = globalThis.ForgeLogic;
+(function () {
+  const Logic = globalThis.ForgeLogic;
+  if (!Logic) {
+    throw new Error("ForgeLogic nao carregou antes de slots.js");
+  }
 
-async function getAvailableSlots({ userId, serviceId, dateStr, excludeAppointmentId }) {
-  const service = await dbGetService(serviceId);
-  if (!service || service.userId !== userId) return [];
+  globalThis.WEEKDAY_LABELS = Logic.WEEKDAY_LABELS;
+  globalThis.datePart = Logic.datePart;
+  globalThis.formatDateTime = Logic.formatDateTime;
+  globalThis.toLocalIso = Logic.toLocalIso;
+  globalThis.addMinutesToIso = Logic.addMinutesToIso;
 
-  const day = new Date(`${dateStr}T12:00:00`);
-  const weekday = day.getDay();
-  const windows = (await dbListAvailability(userId)).filter((a) => a.weekday === weekday);
-  if (!windows.length) return [];
+  async function getAvailableSlots({ userId, serviceId, dateStr, excludeAppointmentId }) {
+    const service = await dbGetService(serviceId);
+    if (!service || service.userId !== userId) return [];
 
-  let appointments = await dbListAppointmentsForDay(userId, dateStr);
-  return buildAvailableSlots({
-    dateStr,
-    durationMinutes: service.durationMinutes,
-    windows,
-    appointments,
-    excludeAppointmentId
-  });
-}
+    const weekday = Logic.weekdayFromDateStr(dateStr);
+    const windows = (await dbListAvailability(userId)).filter((a) => a.weekday === weekday);
+    if (!windows.length) return [];
+
+    const appointments = await dbListAppointmentsForDay(userId, dateStr);
+    return Logic.buildAvailableSlots({
+      dateStr,
+      durationMinutes: service.durationMinutes,
+      windows,
+      appointments,
+      excludeAppointmentId
+    });
+  }
+
+  globalThis.getAvailableSlots = getAvailableSlots;
+})();
