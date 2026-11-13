@@ -2,34 +2,28 @@
 
 Espelham `curso/MODULOS.md`. Tese: **pedir à IA + conferir no navegador**.
 
-## Como usar estes roteiros
+## Como gerar / expandir
 
-Cada aula tem:
-- **Meta** (duração, tipo, objetivo)
-- **Fala / gancho** (o que dizer)
-- **Prompt modelo** (copiar na aula ou no material do aluno)
-- **Conferir** (o que o aluno olha)
-- **Erro comum**
-- **Recado de honestidade**
-- **Fechamento**
+Use o prompt em [`PROMPT-ROTEIROS.md`](./PROMPT-ROTEIROS.md) — **um módulo por vez** (0 a 6).
 
-`tipo: guia` = pode ser mais longo ou sob demanda (não force 8–15 min lineares).
+## Status
 
-## Fontes consultadas (fatos técnicos)
+| Módulo | Arquivo | Formato micro-aulas |
+|--------|---------|---------------------|
+| 0 | [M0-mentalidade-setup.md](./M0-mentalidade-setup.md) | **Pronto** — 0.01–0.16 |
+| 1 | [M1-template-local.md](./M1-template-local.md) | Rascunho |
+| 2 | [M2-dados-nuvem.md](./M2-dados-nuvem.md) | Rascunho |
+| 3 | [M3-publicar.md](./M3-publicar.md) | Rascunho |
+| 4 | [M4-qualidade.md](./M4-qualidade.md) | Rascunho |
+| 5 | [M5-seguranca-lgpd.md](./M5-seguranca-lgpd.md) | Rascunho |
+| 6 | [M6-metodo-nicho.md](./M6-metodo-nicho.md) | Rascunho |
 
-- Firebase API keys públicas por design: https://firebase.google.com/docs/projects/api-keys e FAQ oficial
-- Discussão Firebase JS SDK (GitHub): config web no cliente é esperado; proteção = Rules + App Check
-- App Check / pricing Spark: https://firebase.google.com/pricing — App Check no Spark com quotas do provedor; reCAPTCHA Enterprise com faixa gratuita de assessments
-- Template do curso: repo Forge Agenda (`README.md`, `SECURITY.md`)
+## Formato das micro-aulas (quando expandidas)
 
-## Índice
+Tipo · Duração · Objetivo · Pré-requisito · Fala · Passo a passo · Prompt · Deu certo se · Se a IA divergir · Erros · Pincelada · Honestidade · Fechamento.
 
-| Arquivo | Módulo |
-|---------|--------|
-| [M0-mentalidade-setup.md](./M0-mentalidade-setup.md) | 0 |
-| [M1-template-local.md](./M1-template-local.md) | 1 |
-| [M2-dados-nuvem.md](./M2-dados-nuvem.md) | 2 |
-| [M3-publicar.md](./M3-publicar.md) | 3 |
-| [M4-qualidade.md](./M4-qualidade.md) | 4 |
-| [M5-seguranca-lgpd.md](./M5-seguranca-lgpd.md) | 5 |
-| [M6-metodo-nicho.md](./M6-metodo-nicho.md) | 6 |
+## Fontes
+
+- https://firebase.google.com/docs/projects/api-keys
+- https://firebase.google.com/pricing
+- Template: `README.md`, `SECURITY.md`, `js/config.js`

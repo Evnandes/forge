@@ -83,39 +83,28 @@
 
 ## Módulo 0 — Mentalidade e setup via IA
 
-### 0.1 — O que você vai construir
-- Demo do Forge publicado
-- Você não programa; você **pede e confere**
-- Glossário: onde fica
+Roteiro detalhado: `curso/roteiros/M0-mentalidade-setup.md` (micro-aulas **0.01–0.16**).
 
-### 0.2 — Vibe vs qualidade
-- Tela bonita ≠ produto
-- Critério: usable, no ar, dado mínimo cuidado
+| Nº | Título | Tipo |
+|----|--------|------|
+| 0.01 | O app pronto na sua frente | demo |
+| 0.02 | Você pede, a IA faz, você confere | conceito |
+| 0.03 | Glossário | demo |
+| 0.04 | Vibe coding não é produto | conceito |
+| 0.05 | Três critérios de qualidade | conceito |
+| 0.06 | Você é o chefe da IA | conceito |
+| 0.07 | Aceitar, rejeitar e desfazer no Cursor | demo + mão na massa |
+| 0.08 | Entrar na comunidade | mão na massa |
+| 0.09 | Contas Google, GitHub, Firebase Spark | mão na massa |
+| 0.10 | Baixar o template (ZIP) | mão na massa |
+| 0.11 | Abrir o projeto no Cursor | mão na massa |
+| 0.12 | Live Server | mão na massa |
+| 0.13 | Quando o setup quebra | quando dá errado |
+| 0.14 | Cota do Cursor | conceito |
+| 0.15 | Prompt com quatro peças | mão na massa |
+| 0.16 | Checkpoint do Módulo 0 | checkpoint |
 
-### 0.3 — Você é o chefe
-- Pedidos pequenos, validar no navegador, ler o diff, dizer não
-- Entrar na comunidade (ritmo próprio: postar quando fizer, sem data de turma)
-
-### 0.4 — Setup via IA (`tipo: guia`)
-**Prompt modelo:** *“Estou no Windows. Quero usar o template Forge Agenda no Cursor. Me guie para: abrir a pasta do projeto, instalar a extensão Live Server, e conferir se consigo ver o site local. Não use Python.”*
-
-Checklist de aceite:
-- Cursor abre a pasta do template
-- Live Server (ou equivalente) mostra o site
-- Conta Google + Firebase Spark (sem cartão) + GitHub criados
-
-**FAQ (anexo):** antivírus, permissão de pasta, Cursor login, console Firebase em PT/EN, “preciso de cartão?” → não no Spark.
-
-### 0.5 — Custo do Cursor (e da verdade na venda)
-- Free tem cota de agente
-- Se travar: novo chat curto, esperar cota, ou plano pago
-- Landing do curso deve dizer o custo esperado
-
-### 0.6 — Prompt que funciona
-- Contexto + objetivo + restrições + “como saberei que está pronto”
-- Salvar prompts bons
-
-**Entrega:** ambiente ok + post “setup ok” na comunidade.
+**Entrega:** checklist 0.16 + post "setup ok" na comunidade.
 
 ---
 
