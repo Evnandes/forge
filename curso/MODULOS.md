@@ -361,9 +361,10 @@ Variante 7 dias: compressão consciente.
 
 ---
 
-## Próximos artefatos
+## Artefatos
 
-1. Pack de prompts (PDF) espelhando cada aula  
-2. FAQ da 0.4  
-3. Rubrica imprimível  
-4. Texto pronto da landing (custos)
+1. **Roteiros de gravação:** curso/roteiros/ (aula a aula)  
+2. Pack de prompts (PDF) — consolidar a partir dos roteiros  
+3. FAQ da 0.4 (expandir a partir do roteiro M0)  
+4. Rubrica imprimível  
+5. Texto pronto da landing (custos)
